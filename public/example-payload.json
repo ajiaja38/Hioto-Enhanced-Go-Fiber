@@ -1,0 +1,32 @@
+[
+  {
+    "guid": "68ea3da6-c04a-41ce-815e-a18392921f8b",
+    "mac": "E8:DB:84:E3:13:79",
+    "type": "SENSOR",
+    "quantity": 1,
+    "name": "LSKK-HA-SAKLAR-V3-01",
+    "version": "1.0",
+    "minor": "1.a"
+  },
+  {
+    "mac_server": "01:02:03:04:05:06",
+    "type": "AKTUATOR",
+    "message": "e7dd51bd-32cf-4ca2-9bed-1efa36e21e38#1"
+  },
+  {
+    "guid": "e7dd51bd-32cf-4ca2-9bed-1efa36e21e67",
+    "mac_server": "01:02:03:04:05:06"
+  },
+  {
+    "input_guid": "68ea3da6-c04a-41ce-815e-a18392921f8b",
+    "output_guid": "e7dd51bd-32cf-4ca2-9bed-1efa36e21e38",
+    "pattern": 2
+  },
+  {
+    "input_guid": "68ea3da6-c04a-41ce-815e-a18392921f8b",
+    "output_guid": [
+      "e7dd51bd-32cf-4ca2-9bed-1efa36e21e38",
+      "04e89950-271d-48e2-9111-5d1b04a75e71"
+    ]
+  }
+]
