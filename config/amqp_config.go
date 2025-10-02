@@ -11,7 +11,7 @@ func RmqConnection(uri string, rmqType string) (*amqp.Connection, error) {
 	var conn *amqp.Connection
 	var err error
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		conn, err = amqp.Dial(uri)
 
 		if err == nil {
