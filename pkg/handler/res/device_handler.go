@@ -1,0 +1,87 @@
+package res
+
+import (
+	"go/hioto/pkg/dto"
+	"go/hioto/pkg/service"
+	"go/hioto/pkg/utils"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
+)
+
+type DeviceHandler struct {
+	deviceService *service.DeviceService
+	validator     *validator.Validate
+}
+
+func NewDeviceHandler(deviceService *service.DeviceService) *DeviceHandler {
+	return &DeviceHandler{deviceService: deviceService, validator: validator.New()}
+}
+
+func (h *DeviceHandler) RegisterDevice(c *fiber.Ctx) error {
+	var registrationDeviceDto dto.RegistrationDto
+
+	if err := utils.ValidateRequestBody(c, h.validator, &registrationDeviceDto); err != nil {
+		return err
+	}
+
+	response, err := h.deviceService.RegisterDeviceLocal(&registrationDeviceDto)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SuccessResponse(c, fiber.StatusCreated, "Success register device", response)
+}
+
+func (h *DeviceHandler) GetAllDeviceHandler(c *fiber.Ctx) error {
+	typeParam := c.Params("type")
+
+	devices, err := h.deviceService.GetAllDevice(typeParam)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SuccessResponse(c, fiber.StatusOK, "Success get all device", devices)
+}
+
+func (h *DeviceHandler) GetDeviceByGuidHandler(c *fiber.Ctx) error {
+	guid := c.Params("guid")
+
+	device, err := h.deviceService.GetDeviceByGuid(guid)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SuccessResponse(c, fiber.StatusOK, "Success get device by guid", device)
+}
+
+func (h *DeviceHandler) UpdateDeviceByGuidHandler(c *fiber.Ctx) error {
+	var updateDeviceDto *dto.ReqUpdateDeviceDto
+
+	if err := utils.ValidateRequestBody(c, h.validator, &updateDeviceDto); err != nil {
+		return err
+	}
+
+	device, err := h.deviceService.UpdateDeviceAPI(updateDeviceDto)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SuccessResponse(c, fiber.StatusOK, "Success update device", device)
+}
+
+func (h *DeviceHandler) DeleteDeviceByGuidHandler(c *fiber.Ctx) error {
+	guid := c.Params("guid")
+
+	err := h.deviceService.DeleteDevice(guid)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SuccessResponse[any](c, fiber.StatusOK, "Success delete device", nil)
+}
