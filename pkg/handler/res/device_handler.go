@@ -1,6 +1,7 @@
 package res
 
 import (
+	"fmt"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/service"
 	"go/hioto/pkg/utils"
@@ -71,7 +72,7 @@ func (h *DeviceHandler) UpdateDeviceByGuidHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.SuccessResponse(c, fiber.StatusOK, "Success update device", device)
+	return utils.SuccessResponse(c, fiber.StatusOK, fmt.Sprintf("Success Update Device %s", device.Guid), device)
 }
 
 func (h *DeviceHandler) DeleteDeviceByGuidHandler(c *fiber.Ctx) error {
