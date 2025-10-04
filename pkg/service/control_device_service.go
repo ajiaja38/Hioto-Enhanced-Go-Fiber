@@ -95,7 +95,7 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlDto) {
 		return
 	}
 
-	log.Info("Transaction was committed successfully ✅")
+	log.Info("Transaction committed successfully ✅")
 
 	messagebroker.PublishToRoutingKey(
 		os.Getenv("RMQ_URI"),
