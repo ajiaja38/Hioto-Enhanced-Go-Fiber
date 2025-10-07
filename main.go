@@ -57,7 +57,7 @@ func main() {
 
 	cron.LoggerCrobJob(*logService)
 
-	log.Info("Hello From Worker Hioto 💡")
+	log.Info("Hello From Worker Hioto💡")
 
 	// REST API FIBER
 	app := fiber.New(fiber.Config{
