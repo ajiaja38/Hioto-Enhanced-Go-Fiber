@@ -300,7 +300,7 @@ func (s *DeviceService) UpdateStatusDevice(guid string, status string) {
 	err := s.db.First(&device, "guid = ?", guid).Error
 
 	if err != nil {
-		log.Errorf("Device is not found: %v 💥", err)
+		log.Errorf("Device not found: %v 💥", err)
 		return
 	}
 
