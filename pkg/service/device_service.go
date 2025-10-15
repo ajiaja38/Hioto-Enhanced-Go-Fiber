@@ -149,7 +149,7 @@ func (s *DeviceService) GetAllDevice(deviceType string) ([]dto.ResponseDeviceDto
 	query = query.Order("created_at DESC")
 
 	if err := query.Find(&devices).Error; err != nil {
-		log.Errorf("Error when getting all device: %v 💥", err)
+		log.Errorf("Error getting all device: %v 💥", err)
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error when getting all device")
 	}
 
