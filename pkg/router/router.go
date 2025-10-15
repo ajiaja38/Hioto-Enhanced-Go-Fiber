@@ -7,7 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func Router(router fiber.Router,
+func Router(
+	router fiber.Router,
 	db *gorm.DB,
 	controlDeviceService *service.ControlDeviceService,
 	deviceService *service.DeviceService,
