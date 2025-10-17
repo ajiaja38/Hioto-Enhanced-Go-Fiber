@@ -160,7 +160,7 @@ func (s *RuleService) DeleteRulesByGuidSensor(guid string) error {
 
 	if device.Type != enum.SENSOR {
 		log.Errorf("Device is not a sensor: %v 💥", device.Type)
-		return fiber.NewError(fiber.StatusBadRequest, "The device is not a sensor")
+		return fiber.NewError(fiber.StatusBadRequest, "Device is not a sensor")
 	}
 
 	err := s.db.Where("input_guid = ?", guid).Delete(&model.RuleDevice{}).Error
