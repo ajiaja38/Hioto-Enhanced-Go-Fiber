@@ -56,7 +56,7 @@ func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRul
 	for _, actuator := range createRuleDto.OutputGuid {
 		if err = s.db.Where("guid = ?", actuator).First(&model.Registration{}).Error; err != nil {
 			log.Errorf("The actuator not found: %v 💥", err)
-			return nil, fiber.NewError(fiber.StatusNotFound, "The actuator not found")
+			return nil, fiber.NewError(fiber.StatusNotFound, "The actuator is not found")
 		}
 	}
 
