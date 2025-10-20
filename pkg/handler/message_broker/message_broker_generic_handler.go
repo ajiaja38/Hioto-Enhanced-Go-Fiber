@@ -70,7 +70,7 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 		// Worker pool
 		jobs := make(chan []byte, 100)
 		wg := &sync.WaitGroup{}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
