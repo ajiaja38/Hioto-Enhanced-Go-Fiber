@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2/log"
-	"gorm.io/gorm"
 )
 
 var validate = validator.New()
@@ -30,7 +29,7 @@ func NewConsumerHandler(ruleService *service.RuleService, deviceService *service
 	}
 }
 
-func (h *ConsumerHandler) RegistrationHandler(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) RegistrationHandler(message []byte) {
 	var registrationDto dto.RegistrationDto
 	err := json.Unmarshal(message, &registrationDto)
 
@@ -42,7 +41,7 @@ func (h *ConsumerHandler) RegistrationHandler(message []byte, db *gorm.DB) {
 	h.deviceService.RegisterDeviceLocal(&registrationDto)
 }
 
-func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte) {
 	var registrationDto dto.ReqCloudDeviceDto
 	err := json.Unmarshal(message, &registrationDto)
 
@@ -59,7 +58,7 @@ func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte, db *gorm.
 	h.deviceService.RegisterDeviceCloud(&registrationDto)
 }
 
-func (h *ConsumerHandler) UpdateDeviceFromCloudHandler(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) UpdateDeviceFromCloudHandler(message []byte) {
 	var updateDeviceFromCloudDto dto.ReqUpdateDeviceDtoCloud
 
 	err := json.Unmarshal(message, &updateDeviceFromCloudDto)
@@ -87,7 +86,7 @@ func (h *ConsumerHandler) UpdateDeviceFromCloudHandler(message []byte, db *gorm.
 	h.deviceService.UpdateDeviceRMQCloud(&updateRawDeviceDto)
 }
 
-func (h *ConsumerHandler) RulesHandler(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) RulesHandler(message []byte) {
 	var createRuleDto dto.CreateRuleDto
 	err := json.Unmarshal(message, &createRuleDto)
 
@@ -99,7 +98,7 @@ func (h *ConsumerHandler) RulesHandler(message []byte, db *gorm.DB) {
 	h.ruleService.CreateRules(&createRuleDto)
 }
 
-func (h *ConsumerHandler) ControlHandler(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) ControlHandler(message []byte) {
 	var controlDeviceDto dto.ControlDto
 	err := json.Unmarshal(message, &controlDeviceDto)
 
@@ -123,7 +122,16 @@ func (h *ConsumerHandler) ControlHandler(message []byte, db *gorm.DB) {
 	h.controlDeviceService.ControlDeviceCloud(&controlDeviceDto)
 }
 
-func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) ControlSensorHandler(message []byte) {
+	messageString := string(message)
+
+	guid := strings.Split(messageString, "#")[0]
+	value := strings.Split(messageString, "#")[1]
+
+	h.controlDeviceService.ControlSensor(guid, value)
+}
+
+func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte) {
 	var deleteDeviceDtoFromCloud dto.ReqDeleteDeviceFromCloudDto
 
 	err := json.Unmarshal(message, &deleteDeviceDtoFromCloud)
@@ -141,7 +149,7 @@ func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte, db *gorm.
 	h.deviceService.DeleteDeviceRMQ(deleteDeviceDtoFromCloud.Guid)
 }
 
-func (h *ConsumerHandler) ChangeStatusDevice(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) ChangeStatusDevice(message []byte) {
 	messageString := string(message)
 
 	guid := strings.Split(messageString, "#")[0]
@@ -150,7 +158,7 @@ func (h *ConsumerHandler) ChangeStatusDevice(message []byte, db *gorm.DB) {
 	h.deviceService.UpdateStatusDevice(guid, status)
 }
 
-func (h *ConsumerHandler) MonitoringDataDevice(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) MonitoringDataDevice(message []byte) {
 	messageString := string(message)
 	guid := strings.Split(messageString, "#")[0]
 	data := strings.Split(messageString, "#")[1]
@@ -158,7 +166,7 @@ func (h *ConsumerHandler) MonitoringDataDevice(message []byte, db *gorm.DB) {
 	h.deviceService.UpdateStatusAsMonitoring(guid, data)
 }
 
-func (h *ConsumerHandler) TestingConsumeAktuator(message []byte, db *gorm.DB) {
+func (h *ConsumerHandler) TestingConsumeAktuator(message []byte) {
 	messageString := string(message)
 
 	log.Info(messageString)

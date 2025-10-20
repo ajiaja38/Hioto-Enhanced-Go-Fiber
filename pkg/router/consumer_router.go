@@ -8,32 +8,29 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
-	"gorm.io/gorm"
 )
 
 type ConsumerMqtt struct {
 	Key, ID     string
-	handlerFunc func([]byte, *gorm.DB)
+	handlerFunc func([]byte)
 }
 
 type ConsumerMessageBroker struct {
 	consumerHandler *consumer.ConsumerHandler
-	db              *gorm.DB
 	ctx             context.Context
 }
 
-func NewConsumerMessageBroker(consumerHandler *consumer.ConsumerHandler, db *gorm.DB, ctx context.Context) *ConsumerMessageBroker {
+func NewConsumerMessageBroker(consumerHandler *consumer.ConsumerHandler, ctx context.Context) *ConsumerMessageBroker {
 	return &ConsumerMessageBroker{
 		consumerHandler: consumerHandler,
-		db:              db,
 		ctx:             ctx,
 	}
 }
 
 func (c *ConsumerMessageBroker) StartConsumer() {
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("REGISTRATION_QUEUE"), c.db, c.consumerHandler.RegistrationFromCloudHandler)
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RULES_QUEUE"), c.db, c.consumerHandler.RulesHandler)
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("MONITORING_QUEUE"), c.db, c.consumerHandler.MonitoringDataDevice)
+	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("REGISTRATION_QUEUE"), c.consumerHandler.RegistrationFromCloudHandler)
+	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RULES_QUEUE"), c.consumerHandler.RulesHandler)
+	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("MONITORING_QUEUE"), c.consumerHandler.MonitoringDataDevice)
 
 	// Di nonaktifin dulu, ada memory leak
 	// go ConsumeRmq(os.Getenv("STATUS_DEVICE_QUEUE"), c.db, log, c.consumerHandler.ChangeStatusDevice)
@@ -41,7 +38,7 @@ func (c *ConsumerMessageBroker) StartConsumer() {
 	go func() {
 		for {
 			ctx, cancel := context.WithCancel(context.Background())
-			cancels := c.startRoutingConsumer(ctx, c.db)
+			cancels := c.startRoutingConsumer(ctx)
 
 			time.Sleep(1 * time.Hour)
 
@@ -54,7 +51,7 @@ func (c *ConsumerMessageBroker) StartConsumer() {
 	}()
 }
 
-func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context, db *gorm.DB) []context.CancelFunc {
+func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []context.CancelFunc {
 	var cancels []context.CancelFunc
 
 	createCtx := func() context.Context {
@@ -63,13 +60,12 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context, db *go
 		return c
 	}
 
-	go messagebroker.ConsumeMQTTTopicLocal(
-		createCtx(),
-		os.Getenv("AKTUATOR_ROUTING_KEY"),
-		"AktuatorID"+os.Getenv("MAC_ADDRESS"),
-		db,
-		c.consumerHandler.TestingConsumeAktuator,
-	)
+	for _, routeLocal := range []ConsumerMqtt{
+		{os.Getenv("AKTUATOR_ROUTING_KEY"), "AktuatorID", c.consumerHandler.TestingConsumeAktuator},
+		{os.Getenv("SENSOR_QUEUE"), "controlSensorID", c.consumerHandler.ControlSensorHandler},
+	} {
+		go messagebroker.ConsumeMQTTTopicLocal(createCtx(), routeLocal.Key, routeLocal.ID+os.Getenv("MAC_ADDRESS"), routeLocal.handlerFunc)
+	}
 
 	for _, route := range []ConsumerMqtt{
 		{os.Getenv("CONTROL_ROUTING_KEY"), "controlID", c.consumerHandler.ControlHandler},
@@ -77,7 +73,7 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context, db *go
 		{os.Getenv("UPDATE_DEVICE_ROUTING_KEY"), "updateID", c.consumerHandler.UpdateDeviceFromCloudHandler},
 		{os.Getenv("DELETE_DEVICE_ROUTING_KEY"), "deleteID", c.consumerHandler.DeleteDeviceFromCloudHandler},
 	} {
-		go messagebroker.ConsumeMQTTTopic(createCtx(), route.Key, route.ID+os.Getenv("MAC_ADDRESS"), db, route.handlerFunc)
+		go messagebroker.ConsumeMQTTTopic(createCtx(), route.Key, route.ID+os.Getenv("MAC_ADDRESS"), route.handlerFunc)
 	}
 
 	return cancels

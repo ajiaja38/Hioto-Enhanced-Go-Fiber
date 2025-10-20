@@ -52,7 +52,7 @@ func main() {
 
 	// Start Consumer
 	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService)
-	consumerRouter := router.NewConsumerMessageBroker(consumerHandler, db, ctx)
+	consumerRouter := router.NewConsumerMessageBroker(consumerHandler, ctx)
 	consumerRouter.StartConsumer()
 
 	cron.LoggerCrobJob(*logService)

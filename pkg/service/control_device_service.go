@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/enum"
 	messagebroker "go/hioto/pkg/handler/message_broker"
@@ -35,13 +36,7 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlDto) {
 	}
 
 	if controlDto.Type == enum.SENSOR {
-		messagebroker.PublishToRmq(
-			os.Getenv("RMQ_URI"),
-			"RMQ Local",
-			[]byte(controlDto.Message),
-			os.Getenv("SENSOR_QUEUE"),
-			os.Getenv("EXCHANGE_TOPIC"),
-		)
+		s.ControlSensor(value[0], value[1])
 		return
 	}
 
@@ -116,13 +111,15 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	}
 
 	if controlDto.Type == enum.SENSOR {
-		messagebroker.PublishToRmq(
-			os.Getenv("RMQ_URI"),
-			"RMQ Local",
-			[]byte(controlDto.Message),
-			os.Getenv("SENSOR_QUEUE"),
-			os.Getenv("EXCHANGE_TOPIC"),
-		)
+		// messagebroker.PublishToRmq(
+		// 	os.Getenv("RMQ_URI"),
+		// 	"RMQ Local",
+		// 	[]byte(controlDto.Message),
+		// 	os.Getenv("SENSOR_QUEUE"),
+		// 	os.Getenv("EXCHANGE_TOPIC"),
+		// )
+
+		s.ControlSensor(value[0], value[1])
 		return nil
 	}
 
@@ -214,4 +211,57 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO"), "Biznet Hioto", jsonBody, os.Getenv("UPDATE_RES_CLOUD"), "amq.direct")
 
 	return nil
+}
+
+func (s *ControlDeviceService) ControlSensor(guid, value string) {
+	var ruleDevices []model.RuleDevice
+
+	if err := s.db.Where("input_guid = ?", guid).Where("input_value = ?", value).Find(&ruleDevices).Error; err != nil {
+		log.Errorf("Failed to fetch rule devices: %v 💥", err)
+	}
+
+	for _, ruleDevice := range ruleDevices {
+		var aktuator model.Registration
+
+		location, _ = time.LoadLocation("Asia/Jakarta")
+
+		messageToAktuator := fmt.Sprintf("%s#%s", ruleDevice.OutputGuid, ruleDevice.OutputValue)
+
+		if err := s.db.Where("guid = ?", ruleDevice.OutputGuid).First(&aktuator).Error; err != nil {
+			log.Errorf("Failed to fetch aktuator: %v 💥", err)
+			continue
+		}
+
+		aktuator.Status = ruleDevice.OutputValue
+		aktuator.UpdatedAt = time.Now().In(location)
+
+		if err := s.db.Save(&aktuator).Error; err != nil {
+			log.Errorf("Failed to update aktuator status: %v 💥", err)
+			continue
+		}
+
+		logSensor := model.Log{
+			InputGuid:   guid,
+			InputName:   aktuator.Name,
+			InputValue:  ruleDevice.InputGuid,
+			OutputGuid:  aktuator.Guid,
+			OutputValue: ruleDevice.OutputValue,
+			Time:        time.Now().In(location),
+		}
+
+		if err := s.db.Create(&logSensor).Error; err != nil {
+			log.Errorf("Failed to insert log: %v 💥", err)
+			continue
+		}
+
+		messagebroker.PublishToRoutingKey(
+			os.Getenv("RMQ_URI"),
+			"RMQ Local",
+			[]byte(messageToAktuator),
+			os.Getenv("EXCHANGE_TOPIC"),
+			os.Getenv("AKTUATOR_ROUTING_KEY"),
+		)
+
+		log.Infof("Sensor rule executed for aktuator %s with value %s ✅", aktuator.Name, ruleDevice.OutputValue)
+	}
 }

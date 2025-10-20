@@ -10,12 +10,11 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gofiber/fiber/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"gorm.io/gorm"
 )
 
-type MessageHandler func([]byte, *gorm.DB)
+type MessageHandler func([]byte)
 
-func ConsumeRmq(ctx context.Context, queueName string, db *gorm.DB, handler MessageHandler) {
+func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -76,7 +75,7 @@ func ConsumeRmq(ctx context.Context, queueName string, db *gorm.DB, handler Mess
 			go func() {
 				defer wg.Done()
 				for body := range jobs {
-					handler(body, db)
+					handler(body)
 				}
 			}()
 		}
@@ -115,7 +114,7 @@ func ConsumeRmq(ctx context.Context, queueName string, db *gorm.DB, handler Mess
 	}
 }
 
-func ConsumeMQTTTopic(ctx context.Context, topic string, clietId string, db *gorm.DB, handlerFunc MessageHandler) {
+func ConsumeMQTTTopic(ctx context.Context, topic string, clietId string, handlerFunc MessageHandler) {
 	HOST := "tcp://hioto-rmq.pptik.id:1883"
 	USERNAME := "/hioto:hioto"
 	PASSWORD := "ncHPk8BonsxqKyW"
@@ -143,7 +142,7 @@ func ConsumeMQTTTopic(ctx context.Context, topic string, clietId string, db *gor
 	}
 
 	messageHandler := func(client mqtt.Client, msg mqtt.Message) {
-		go handlerFunc(msg.Payload(), db)
+		go handlerFunc(msg.Payload())
 	}
 
 	if token := client.Subscribe(TOPIC, 0, messageHandler); token.Wait() && token.Error() != nil {
@@ -161,7 +160,7 @@ func ConsumeMQTTTopic(ctx context.Context, topic string, clietId string, db *gor
 	client.Disconnect(250)
 }
 
-func ConsumeMQTTTopicLocal(ctx context.Context, topic string, clietId string, db *gorm.DB, handlerFunc MessageHandler) {
+func ConsumeMQTTTopicLocal(ctx context.Context, topic string, clietId string, handlerFunc MessageHandler) {
 	HOST := "tcp://127.0.0.1:1883"
 	USERNAME := "/smarthome:smarthome"
 	PASSWORD := "Ssm4rt2!"
@@ -175,7 +174,7 @@ func ConsumeMQTTTopicLocal(ctx context.Context, topic string, clietId string, db
 
 	client := mqtt.NewClient(opts)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			log.Errorf("[listener-mqtt] Failed to connect to MQTT broker (Attempt %d/5): %v", i+1, token.Error())
 			if i == 4 {
@@ -189,7 +188,7 @@ func ConsumeMQTTTopicLocal(ctx context.Context, topic string, clietId string, db
 	}
 
 	messageHandler := func(client mqtt.Client, msg mqtt.Message) {
-		go handlerFunc(msg.Payload(), db)
+		go handlerFunc(msg.Payload())
 	}
 
 	if token := client.Subscribe(TOPIC, 0, messageHandler); token.Wait() && token.Error() != nil {
