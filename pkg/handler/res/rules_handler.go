@@ -62,5 +62,5 @@ func (h *RulesHandler) DeleteRulesByGuidSensorHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.SuccessResponse[interface{}](c, fiber.StatusOK, "Success delete rules by guid sensor", nil)
+	return utils.SuccessResponse[any](c, fiber.StatusOK, "Success delete rules by guid sensor", nil)
 }
