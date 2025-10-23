@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/enum"
 	messagebroker "go/hioto/pkg/handler/message_broker"
@@ -141,6 +142,8 @@ func (s *DeviceService) GetAllDevice(deviceType string) ([]dto.ResponseDeviceDto
 	var devices []model.Registration
 
 	var query *gorm.DB = s.db
+
+	fmt.Println("Device Type:", deviceType)
 
 	if deviceType != "" {
 		query = query.Where("type = ?", deviceType)

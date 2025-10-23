@@ -36,7 +36,7 @@ func (h *DeviceHandler) RegisterDevice(c *fiber.Ctx) error {
 }
 
 func (h *DeviceHandler) GetAllDeviceHandler(c *fiber.Ctx) error {
-	devices, err := h.deviceService.GetAllDevice(c.Params("type"))
+	devices, err := h.deviceService.GetAllDevice(c.Query("type"))
 
 	if err != nil {
 		return err
@@ -46,6 +46,7 @@ func (h *DeviceHandler) GetAllDeviceHandler(c *fiber.Ctx) error {
 }
 
 func (h *DeviceHandler) GetDeviceByGuidHandler(c *fiber.Ctx) error {
+	fmt.Println("device id", c.Params("guid"))
 	device, err := h.deviceService.GetDeviceByGuid(c.Params("guid"))
 
 	if err != nil {

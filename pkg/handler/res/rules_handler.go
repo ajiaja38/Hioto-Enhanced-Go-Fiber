@@ -42,7 +42,7 @@ func (h *RulesHandler) CreateRulesHandler(c *fiber.Ctx) error {
 }
 
 func (h *RulesHandler) GetRulesByGuidHandler(c *fiber.Ctx) error {
-	guid := c.Params("guid")
+	guid := c.Params("guidDevice")
 
 	rules, err := h.rulesService.GetRulesByGuid(guid)
 
