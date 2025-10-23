@@ -19,11 +19,7 @@ import (
 var location *time.Location
 
 func init() {
-	location, _ = time.LoadLocation("Asia/Jakarta")
-
-	if location == nil {
-		location = time.UTC
-	}
+	location = time.FixedZone("WIB", 7*60*60)
 }
 
 type DeviceService struct {

@@ -18,11 +18,7 @@ import (
 var locations *time.Location
 
 func init() {
-	locations, _ = time.LoadLocation("Asia/Jakarta")
-
-	if locations == nil {
-		locations = time.UTC
-	}
+	locations = time.FixedZone("WIB", 7*60*60)
 }
 
 type RuleService struct {

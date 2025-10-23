@@ -2,6 +2,7 @@ package model
 
 type ResponseEntity[T any] struct {
 	Code    int             `json:"code"`
+	Status  bool            `json:"status"`
 	Message string          `json:"message"`
 	Data    T               `json:"data,omitempty"`
 	Meta    *MetaPagination `json:"meta,omitempty"`

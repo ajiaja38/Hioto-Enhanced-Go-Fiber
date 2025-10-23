@@ -40,12 +40,7 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlDto) {
 		return
 	}
 
-	location, err := time.LoadLocation("Asia/Jakarta")
-
-	if err != nil {
-		log.Errorf("Failed to load location: %v 💥", err)
-		return
-	}
+	location = time.FixedZone("WIB", 7*60*60)
 
 	tx := s.db.Begin()
 
@@ -111,23 +106,11 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	}
 
 	if controlDto.Type == enum.SENSOR {
-		// messagebroker.PublishToRmq(
-		// 	os.Getenv("RMQ_URI"),
-		// 	"RMQ Local",
-		// 	[]byte(controlDto.Message),
-		// 	os.Getenv("SENSOR_QUEUE"),
-		// 	os.Getenv("EXCHANGE_TOPIC"),
-		// )
-
 		s.ControlSensor(value[0], value[1])
 		return nil
 	}
 
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Errorf("Failed to load location: %v 💥", err)
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to load location")
-	}
+	location = time.FixedZone("WIB", 7*60*60)
 
 	tx := s.db.Begin()
 
@@ -223,7 +206,7 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 	for _, ruleDevice := range ruleDevices {
 		var aktuator model.Registration
 
-		location, _ = time.LoadLocation("Asia/Jakarta")
+		location = time.FixedZone("WIB", 7*60*60)
 
 		messageToAktuator := fmt.Sprintf("%s#%s", ruleDevice.OutputGuid, ruleDevice.OutputValue)
 

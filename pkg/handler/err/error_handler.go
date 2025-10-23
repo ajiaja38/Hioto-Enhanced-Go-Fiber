@@ -21,6 +21,7 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 	response := model.ResponseError[any]{
 		ResponseEntity: model.ResponseEntity[any]{
 			Code:    code,
+			Status:  false,
 			Message: message,
 		},
 		Path: c.Path(),
