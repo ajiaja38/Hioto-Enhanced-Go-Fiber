@@ -156,7 +156,7 @@ func (s *DeviceService) GetAllDevice(deviceType string) ([]dto.ResponseDeviceDto
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error when getting all device")
 	}
 
-	var result []dto.ResponseDeviceDto
+	var result []dto.ResponseDeviceDto = []dto.ResponseDeviceDto{}
 
 	for _, device := range devices {
 		result = append(result, dto.ResponseDeviceDto{
