@@ -219,7 +219,7 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 		aktuator.UpdatedAt = time.Now().In(location)
 
 		if err := s.db.Save(&aktuator).Error; err != nil {
-			log.Errorf("Failed to update aktuator status: %v 💥", err)
+			log.Errorf("Failed update aktuator status: %v 💥", err)
 			continue
 		}
 
