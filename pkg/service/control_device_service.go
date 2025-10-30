@@ -139,7 +139,7 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	}).Error; err != nil {
 		log.Errorf("Error updating registration: %v 💥", err)
 		tx.Rollback()
-		return fiber.NewError(fiber.StatusBadRequest, "Error updating registration")
+		return fiber.NewError(fiber.StatusBadRequest, "Error updating registration device")
 	}
 
 	logEntry := model.LogAktuator{
