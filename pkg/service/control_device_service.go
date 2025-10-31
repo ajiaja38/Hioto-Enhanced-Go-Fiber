@@ -120,7 +120,7 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 			log.Errorf("Transaction rollback due to panic: %v 💥", r)
 		} else {
 			if err := tx.Commit().Error; err != nil {
-				log.Errorf("Error committing transaction: %v 💥", err)
+				log.Errorf("Error committing the transaction: %v 💥", err)
 				tx.Rollback()
 			}
 		}
