@@ -54,7 +54,7 @@ func (h *RulesHandler) GetRulesByGuidHandler(c *fiber.Ctx) error {
 }
 
 func (h *RulesHandler) DeleteRulesByGuidSensorHandler(c *fiber.Ctx) error {
-	guid := c.Params("guid")
+	guid := c.Params("guidSensor")
 
 	err := h.rulesService.DeleteRulesByGuidSensor(guid)
 

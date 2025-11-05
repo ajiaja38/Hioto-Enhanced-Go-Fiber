@@ -46,7 +46,6 @@ func (h *DeviceHandler) GetAllDeviceHandler(c *fiber.Ctx) error {
 }
 
 func (h *DeviceHandler) GetDeviceByGuidHandler(c *fiber.Ctx) error {
-	fmt.Println("device id", c.Params("guid"))
 	device, err := h.deviceService.GetDeviceByGuid(c.Params("guid"))
 
 	if err != nil {
