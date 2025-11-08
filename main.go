@@ -90,7 +90,7 @@ func main() {
 
 	go func() {
 		if err := app.Listen(":" + port); err != nil {
-			log.Fatalf("Fiber server error: %v", err)
+			log.Fatalf("server error: %v", err)
 		}
 	}()
 
