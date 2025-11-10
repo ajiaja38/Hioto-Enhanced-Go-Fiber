@@ -34,5 +34,5 @@ func (h *ControlDeviceHandler) ControlDeviceHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.SuccessResponse[any](c, fiber.StatusOK, "Success control device", nil)
+	return utils.SuccessResponse[any](c, fiber.StatusOK, "Success control device ✅", nil)
 }
