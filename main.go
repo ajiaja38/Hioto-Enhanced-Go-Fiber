@@ -8,7 +8,6 @@ import (
 	"go/hioto/pkg/router"
 	"go/hioto/pkg/service"
 	"go/hioto/pkg/utils"
-	"go/hioto/pkg/utils/cron"
 	"os"
 	"os/signal"
 	"syscall"
@@ -48,14 +47,14 @@ func main() {
 	controlDeviceService := service.NewControlDeviceService(db)
 	deviceService := service.NewDeviceService(db)
 	ruleService := service.NewRuleService(db)
-	logService := service.NewLogService(db)
+	// logService := service.NewLogService(db)
 
 	// Start Consumer
 	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService)
 	consumerRouter := router.NewConsumerMessageBroker(consumerHandler, ctx)
 	consumerRouter.StartConsumer()
 
-	cron.LoggerCrobJob(*logService)
+	// cron.LoggerCrobJob(*logService)
 
 	log.Info("Hello From Worker Hioto💡")
 

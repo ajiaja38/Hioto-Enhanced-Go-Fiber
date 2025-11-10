@@ -67,7 +67,6 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 
 		log.Infof("[%s] Waiting for messages ⚡️", queueName)
 
-		// Worker pool
 		jobs := make(chan []byte, 100)
 		wg := &sync.WaitGroup{}
 		for range 5 {
@@ -80,7 +79,6 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 			}()
 		}
 
-		// Consume loop
 	consumeLoop:
 		for {
 			select {
