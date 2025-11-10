@@ -28,30 +28,31 @@ func initializeMqtt(mqttConfig *MqttConfig) error {
 	mqttMu.Lock()
 	defer mqttMu.Unlock()
 
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(mqttConfig.Host)
-	opts.SetUsername(mqttConfig.Username)
-	opts.SetPassword(mqttConfig.Password)
-	opts.SetClientID(mqttConfig.ClientId)
+	opts := mqtt.NewClientOptions().
+		AddBroker(mqttConfig.Host).
+		SetUsername(mqttConfig.Username).
+		SetPassword(mqttConfig.Password).
+		SetClientID(mqttConfig.ClientId).
+		SetAutoReconnect(true).
+		SetConnectRetry(true).
+		SetConnectRetryInterval(1 * time.Second)
+
+	opts.OnConnect = func(client mqtt.Client) {
+		log.Infof("🔓 MQTT %s connected successfully", mqttConfig.InstanceName)
+	}
+
+	opts.OnConnectionLost = func(client mqtt.Client, err error) {
+		log.Errorf("⚠️ MQTT %s connection lost: %v", mqttConfig.InstanceName, err)
+	}
 
 	client := mqtt.NewClient(opts)
 
-	for i := range 5 {
-		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			log.Errorf("[%s] Failed to connect to MQTT broker (Attempt %d/5): %v", mqttConfig.InstanceName, i+1, token.Error())
-			if i == 4 {
-				return token.Error()
-			}
-			time.Sleep(5 * time.Second)
-			continue
-		}
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		return fmt.Errorf("[%s] Failed to connect to MQTT broker: %v", mqttConfig.InstanceName, token.Error())
+	}
 
-		mqttInstance[mqttConfig.InstanceName] = &MqttInstance{
-			client: client,
-		}
-
-		log.Infof("🔓 MQTT %s connection established", mqttConfig.InstanceName)
-		break
+	mqttInstance[mqttConfig.InstanceName] = &MqttInstance{
+		client: client,
 	}
 
 	return nil
@@ -90,7 +91,7 @@ func CreateMqttInstance() {
 		Password:     "ncHPk8BonsxqKyW",
 		ClientId:     "listener-mqtt-cloud",
 	}); err != nil {
-		log.Errorf("Failed to initialize MQTT instance: %v", err)
+		log.Error(err)
 	}
 
 	if err := initializeMqtt(&MqttConfig{
@@ -100,6 +101,6 @@ func CreateMqttInstance() {
 		Password:     "Ssm4rt2!",
 		ClientId:     "listener-mqtt-local",
 	}); err != nil {
-		log.Errorf("Failed to initialize MQTT instance: %v", err)
+		log.Error(err)
 	}
 }
