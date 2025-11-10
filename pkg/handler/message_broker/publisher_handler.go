@@ -7,24 +7,15 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func PublishToRmq(URI string, rmqType string, message []byte, queueName string, exchange string) {
-	conn, err := config.RmqConnection(URI, rmqType)
+func PublishToRmq(instanceName string, message []byte, queueName string, exchange string) {
+	instance, err := config.GetRMQInstance(instanceName)
 
 	if err != nil {
-		log.Errorf("Failed to establish connection: %v 💥", err)
+		log.Errorf("Failed to get RabbitMQ instance: %v 💥", err)
 		return
 	}
 
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-
-	if err != nil {
-		log.Errorf("Failed to open channel: %v 💥", err)
-		return
-	}
-
-	defer ch.Close()
+	ch := instance.Channel
 
 	q, err := ch.QueueDeclare(
 		queueName,
@@ -60,20 +51,15 @@ func PublishToRmq(URI string, rmqType string, message []byte, queueName string, 
 	log.Infof("Published message to queue %s ✅", queueName)
 }
 
-func PublishToRoutingKey(URI string, rmqType string, message []byte, exchange string, routingKey string) {
-	conn, err := config.RmqConnection(URI, rmqType)
-	if err != nil {
-		log.Errorf("Failed to establish connection: %v 💥", err)
-		return
-	}
-	defer conn.Close()
+func PublishToRoutingKey(instanceName string, message []byte, exchange, routingKey string) {
+	instance, err := config.GetRMQInstance(instanceName)
 
-	ch, err := conn.Channel()
 	if err != nil {
-		log.Errorf("Failed to open channel: %v 💥", err)
+		log.Errorf("Failed to get RabbitMQ instance: %v 💥", err)
 		return
 	}
-	defer ch.Close()
+
+	ch := instance.Channel
 
 	err = ch.ExchangeDeclare(
 		exchange,

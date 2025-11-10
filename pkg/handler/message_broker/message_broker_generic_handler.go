@@ -3,7 +3,6 @@ package messagebroker
 import (
 	"context"
 	"go/hioto/config"
-	"os"
 	"sync"
 	"time"
 
@@ -14,7 +13,7 @@ import (
 
 type MessageHandler func([]byte)
 
-func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
+func ConsumeRmq(ctx context.Context, instanceName, queueName string, handler MessageHandler) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -23,17 +22,18 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 		default:
 		}
 
-		conn, err := config.RmqConnection(os.Getenv("RMQ_URI"), "Local")
+		instance, err := config.GetRMQInstance(instanceName)
+
 		if err != nil {
-			log.Errorf("[%s] Failed to establish connection: %v. Retrying...", queueName, err)
+			log.Errorf("[%s] Failed to get RabbitMQ instance: %v", queueName, err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
-		ch, err := conn.Channel()
-		if err != nil {
-			log.Errorf("[%s] Failed to open channel: %v", queueName, err)
-			conn.Close()
+		ch := instance.Channel
+
+		if instance == nil || instance.Channel == nil {
+			log.Warnf("[%s] Channel not ready, retrying...", queueName)
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -50,8 +50,6 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 		)
 		if err != nil {
 			log.Errorf("[%s] Queue declare error: %v", queueName, err)
-			ch.Close()
-			conn.Close()
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -59,8 +57,6 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 		msgs, err := ch.Consume(q.Name, "", true, false, false, false, nil)
 		if err != nil {
 			log.Errorf("[%s] Failed to consume: %v", queueName, err)
-			ch.Close()
-			conn.Close()
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -100,8 +96,6 @@ func ConsumeRmq(ctx context.Context, queueName string, handler MessageHandler) {
 
 		close(jobs)
 		wg.Wait()
-		ch.Close()
-		conn.Close()
 
 		if ctx.Err() != nil {
 			return

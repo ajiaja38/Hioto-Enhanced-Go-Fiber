@@ -1,27 +1,97 @@
 package config
 
 import (
+	"fmt"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func RmqConnection(uri string, rmqType string) (*amqp.Connection, error) {
+type RMQInstance struct {
+	Conn    *amqp.Connection
+	Channel *amqp.Channel
+}
+
+var rmqInstances = make(map[string]*RMQInstance)
+var mu sync.Mutex
+
+func initializeRabbitMQ(url, rmqInstance string) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	var conn *amqp.Connection
+	var ch *amqp.Channel
 	var err error
 
 	for i := range 5 {
-		conn, err = amqp.Dial(uri)
+		conn, err = amqp.Dial(url)
 
 		if err == nil {
-			log.Infof("successfully connected to rabbitMQ %s🔀", rmqType)
-			return conn, nil
+			log.Infof("✅ Successfully connected to RabbitMQ (%s)", rmqInstance)
+
+			ch, err = conn.Channel()
+			if err != nil {
+				log.Infof("❌ Failed to open channel: %v", err)
+				return err
+			}
+
+			rmqInstances[rmqInstance] = &RMQInstance{
+				Conn:    conn,
+				Channel: ch,
+			}
+
+			log.Info("✅ RabbitMQ channel opened successfully")
+			return nil
 		}
 
-		log.Warnf("failed to connect to rabbitMQ, retrying in 5 seconds... (%d/5) 💥", i+1)
+		log.Infof("⚠️ Failed to connect to RabbitMQ, retrying in 5 seconds... (%d/5)", i+1)
 		time.Sleep(5 * time.Second)
 	}
 
-	return nil, err
+	return err
+}
+
+func GetRMQInstance(rmqtype string) (*RMQInstance, error) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	instance, ok := rmqInstances[rmqtype]
+
+	if !ok {
+		return nil, fmt.Errorf("RabbitMQ instance %s not found", rmqtype)
+	}
+
+	return instance, nil
+}
+
+func CloseRabbitMQ() {
+	mu.Lock()
+	defer mu.Unlock()
+
+	for name, rmqInstance := range rmqInstances {
+		if rmqInstance.Channel != nil {
+			rmqInstance.Channel.Close()
+			log.Infof("🔒 RabbitMQ %s channel closed \n", name)
+		}
+
+		if rmqInstance.Conn != nil {
+			rmqInstance.Conn.Close()
+			log.Infof("🔒 RabbitMQ %s connection closed", name)
+		}
+	}
+}
+
+func CreateRmqInstance() {
+	// Init RabbitMQ Cloud
+	if err := initializeRabbitMQ(os.Getenv("RMQ_HIOTO"), os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE")); err != nil {
+		log.Fatal(err)
+	}
+
+	// Init RabbitMQ Local
+	if err := initializeRabbitMQ(os.Getenv("RMQ_URI"), os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE")); err != nil {
+		log.Fatal(err)
+	}
 }

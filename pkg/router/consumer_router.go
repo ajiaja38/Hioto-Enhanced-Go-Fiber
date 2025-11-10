@@ -28,12 +28,9 @@ func NewConsumerMessageBroker(consumerHandler *consumer.ConsumerHandler, ctx con
 }
 
 func (c *ConsumerMessageBroker) StartConsumer() {
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("REGISTRATION_QUEUE"), c.consumerHandler.RegistrationFromCloudHandler)
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RULES_QUEUE"), c.consumerHandler.RulesHandler)
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("MONITORING_QUEUE"), c.consumerHandler.MonitoringDataDevice)
-
-	// Di nonaktifin dulu, ada memory leak
-	// go ConsumeRmq(os.Getenv("STATUS_DEVICE_QUEUE"), c.db, log, c.consumerHandler.ChangeStatusDevice)
+	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("REGISTRATION_QUEUE"), c.consumerHandler.RegistrationFromCloudHandler)
+	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("RULES_QUEUE"), c.consumerHandler.RulesHandler)
+	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("MONITORING_QUEUE"), c.consumerHandler.MonitoringDataDevice)
 
 	go func() {
 		for {

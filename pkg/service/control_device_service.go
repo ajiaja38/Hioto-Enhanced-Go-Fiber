@@ -88,8 +88,7 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlDto) {
 	log.Info("Transaction committed successfully ✅")
 
 	messagebroker.PublishToRoutingKey(
-		os.Getenv("RMQ_URI"),
-		"RMQ Local",
+		os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"),
 		[]byte(controlDto.Message),
 		os.Getenv("EXCHANGE_TOPIC"),
 		os.Getenv("AKTUATOR_ROUTING_KEY"),
@@ -158,8 +157,7 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	log.Info("Transaction for local committed successfully ✅")
 
 	messagebroker.PublishToRoutingKey(
-		os.Getenv("RMQ_URI"),
-		"RMQ Local",
+		os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"),
 		[]byte(controlDto.Message),
 		os.Getenv("EXCHANGE_TOPIC"),
 		os.Getenv("AKTUATOR_ROUTING_KEY"),
@@ -191,7 +189,12 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 		return fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO"), "Biznet Hioto", jsonBody, os.Getenv("UPDATE_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(
+		os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"),
+		jsonBody,
+		os.Getenv("UPDATE_RES_CLOUD"),
+		"amq.direct",
+	)
 
 	return nil
 }
@@ -238,8 +241,7 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 		}
 
 		messagebroker.PublishToRoutingKey(
-			os.Getenv("RMQ_URI"),
-			"RMQ Local",
+			os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"),
 			[]byte(messageToAktuator),
 			os.Getenv("EXCHANGE_TOPIC"),
 			os.Getenv("AKTUATOR_ROUTING_KEY"),

@@ -101,8 +101,7 @@ func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRul
 	}
 
 	messagebroker.PublishToRmq(
-		os.Getenv("RMQ_HIOTO"),
-		"RMQ Cloud",
+		os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"),
 		responseToJson,
 		os.Getenv("RULES_RESPONSE_QUEUE"),
 		os.Getenv("EXCHANGE_DIRECT"),

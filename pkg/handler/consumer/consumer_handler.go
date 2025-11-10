@@ -149,15 +149,6 @@ func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte) {
 	h.deviceService.DeleteDeviceRMQ(deleteDeviceDtoFromCloud.Guid)
 }
 
-func (h *ConsumerHandler) ChangeStatusDevice(message []byte) {
-	messageString := string(message)
-
-	guid := strings.Split(messageString, "#")[0]
-	status := strings.Split(messageString, "#")[1]
-
-	h.deviceService.UpdateStatusDevice(guid, status)
-}
-
 func (h *ConsumerHandler) MonitoringDataDevice(message []byte) {
 	messageString := string(message)
 	guid := strings.Split(messageString, "#")[0]

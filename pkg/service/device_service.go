@@ -83,7 +83,7 @@ func (s *DeviceService) RegisterDeviceLocal(registrationDto *dto.RegistrationDto
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO"), "Biznet Hioto", jsonBody, os.Getenv("REGISTER_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"), jsonBody, os.Getenv("REGISTER_RES_CLOUD"), "amq.direct")
 
 	registrationResponse = &dto.ResponseDeviceDto{
 		ID:           registration.ID,
@@ -256,7 +256,7 @@ func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (devi
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO"), "Biznet Hioto", jsonBody, os.Getenv("UPDATE_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"), jsonBody, os.Getenv("UPDATE_RES_CLOUD"), "amq.direct")
 
 	return deviceUpdated, nil
 }
@@ -291,57 +291,6 @@ func (s *DeviceService) DeleteDeviceRMQ(guid string) {
 		log.Errorf("Error deleting device: %v 💥", err)
 		return
 	}
-}
-
-func (s *DeviceService) UpdateStatusDevice(guid string, status string) {
-	var device model.Registration
-
-	err := s.db.First(&device, "guid = ?", guid).Error
-
-	if err != nil {
-		log.Errorf("Device not found: %v 💥", err)
-		return
-	}
-
-	device.StatusDevice = enum.EDeviceStatus(status)
-	device.LastSeen = time.Now().In(location)
-
-	err = s.db.Save(&device).Error
-
-	if err != nil {
-		log.Errorf("Error updating status device: %v 💥", err)
-		return
-	}
-
-	bodyToCloud := dto.ResCloudDeviceDto{
-		ResponseDeviceDto: dto.ResponseDeviceDto{
-			ID:           device.ID,
-			Guid:         device.Guid,
-			Mac:          device.Mac,
-			Type:         device.Type,
-			Quantity:     device.Quantity,
-			Name:         device.Name,
-			Version:      device.Version,
-			Minor:        device.Minor,
-			Status:       device.Status,
-			StatusDevice: string(device.StatusDevice),
-			LastSeen:     device.LastSeen,
-			CreatedAt:    device.CreatedAt,
-			UpdatedAt:    device.UpdatedAt,
-		},
-		MacServer: os.Getenv("MAC_ADDRESS"),
-	}
-
-	jsonBody, err := json.Marshal(bodyToCloud)
-
-	if err != nil {
-		log.Errorf("Error marshaling JSON: %v 💥", err)
-		return
-	}
-
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO"), "Biznet Hioto", jsonBody, os.Getenv("UPDATE_RES_CLOUD"), "amq.direct")
-
-	log.Infof("Status device successfully updated: %s ✅", status)
 }
 
 func (s *DeviceService) DeleteDevice(guid string) error {
@@ -405,7 +354,7 @@ func (s *DeviceService) DeleteDevice(guid string) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO"), "Biznet Hioto", jsonBody, os.Getenv("DELETE_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"), jsonBody, os.Getenv("DELETE_RES_CLOUD"), "amq.direct")
 
 	log.Infof("Device successfully deleted: %s ✅", guid)
 	return nil

@@ -39,6 +39,9 @@ func main() {
 
 	utils.AutoMigrateDb(db)
 
+	config.CreateRmqInstance()
+	defer config.CloseRabbitMQ()
+
 	// Start Worker
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
