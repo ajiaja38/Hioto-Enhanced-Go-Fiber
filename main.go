@@ -42,6 +42,9 @@ func main() {
 	config.CreateRmqInstance()
 	defer config.CloseRabbitMQ()
 
+	config.CreateMqttInstance()
+	defer config.CloseAllMqttInstances()
+
 	// Start Worker
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

@@ -11,8 +11,8 @@ import (
 )
 
 type ConsumerMqtt struct {
-	Key, ID     string
-	handlerFunc func([]byte)
+	InstanceName, Topic string
+	handlerFunc         func([]byte)
 }
 
 type ConsumerMessageBroker struct {
@@ -57,20 +57,15 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []cont
 		return c
 	}
 
-	for _, routeLocal := range []ConsumerMqtt{
-		{os.Getenv("AKTUATOR_ROUTING_KEY"), "AktuatorID", c.consumerHandler.TestingConsumeAktuator},
-		{os.Getenv("SENSOR_QUEUE"), "controlSensorID", c.consumerHandler.ControlSensorHandler},
-	} {
-		go messagebroker.ConsumeMQTTTopicLocal(createCtx(), routeLocal.Key, routeLocal.ID+os.Getenv("MAC_ADDRESS"), routeLocal.handlerFunc)
-	}
-
 	for _, route := range []ConsumerMqtt{
-		{os.Getenv("CONTROL_ROUTING_KEY"), "controlID", c.consumerHandler.ControlHandler},
-		{os.Getenv("REGISTRATION_ROUTING_KEY"), "registrationID", c.consumerHandler.RegistrationFromCloudHandler},
-		{os.Getenv("UPDATE_DEVICE_ROUTING_KEY"), "updateID", c.consumerHandler.UpdateDeviceFromCloudHandler},
-		{os.Getenv("DELETE_DEVICE_ROUTING_KEY"), "deleteID", c.consumerHandler.DeleteDeviceFromCloudHandler},
+		{"MQTT_CLOUD", os.Getenv("CONTROL_ROUTING_KEY"), c.consumerHandler.ControlHandler},
+		{"MQTT_CLOUD", os.Getenv("REGISTRATION_ROUTING_KEY"), c.consumerHandler.RegistrationFromCloudHandler},
+		{"MQTT_CLOUD", os.Getenv("UPDATE_DEVICE_ROUTING_KEY"), c.consumerHandler.UpdateDeviceFromCloudHandler},
+		{"MQTT_CLOUD", os.Getenv("DELETE_DEVICE_ROUTING_KEY"), c.consumerHandler.DeleteDeviceFromCloudHandler},
+		{"MQTT_LOCAL", os.Getenv("AKTUATOR_ROUTING_KEY"), c.consumerHandler.TestingConsumeAktuator},
+		{"MQTT_LOCAL", os.Getenv("SENSOR_QUEUE"), c.consumerHandler.ControlSensorHandler},
 	} {
-		go messagebroker.ConsumeMQTTTopic(createCtx(), route.Key, route.ID+os.Getenv("MAC_ADDRESS"), route.handlerFunc)
+		go messagebroker.ConsumeMQTTTopic(createCtx(), route.InstanceName, route.Topic, route.handlerFunc)
 	}
 
 	return cancels

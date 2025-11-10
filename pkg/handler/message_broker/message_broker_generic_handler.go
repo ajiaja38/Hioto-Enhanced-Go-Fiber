@@ -106,94 +106,29 @@ func ConsumeRmq(ctx context.Context, instanceName, queueName string, handler Mes
 	}
 }
 
-func ConsumeMQTTTopic(ctx context.Context, topic string, clietId string, handlerFunc MessageHandler) {
-	HOST := "tcp://hioto-rmq.pptik.id:1883"
-	USERNAME := "/hioto:hioto"
-	PASSWORD := "ncHPk8BonsxqKyW"
-	TOPIC := topic
+func ConsumeMQTTTopic(ctx context.Context, instanceName, topic string, handlerFunc MessageHandler) {
+	client, err := config.GetMqttInstance(instanceName)
 
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(HOST)
-	opts.SetUsername(USERNAME)
-	opts.SetPassword(PASSWORD)
-	opts.SetClientID(clietId)
-
-	client := mqtt.NewClient(opts)
-
-	for i := range 5 {
-		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			log.Errorf("[listener-mqtt] Failed to connect to MQTT broker (Attempt %d/5): %v", i+1, token.Error())
-			if i == 4 {
-				return
-			}
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		log.Info("[listener-mqtt] Successfully connected to MQTT broker")
-		break
+	if err != nil {
+		log.Error(err)
+		return
 	}
 
 	messageHandler := func(client mqtt.Client, msg mqtt.Message) {
 		go handlerFunc(msg.Payload())
 	}
 
-	if token := client.Subscribe(TOPIC, 0, messageHandler); token.Wait() && token.Error() != nil {
+	if token := client.Subscribe(topic, 0, messageHandler); token.Wait() && token.Error() != nil {
 		log.Errorf("Failed to subscribe: %v", token.Error())
 		client.Disconnect(250)
 		return
 	}
 
-	log.Infof("Subscribed to topic: %s", TOPIC)
+	log.Infof("Subscribed to topic: %s", topic)
 
 	<-ctx.Done()
 
 	log.Warnf("MQTT context done, cleaning up...")
-	client.Unsubscribe(TOPIC)
-	client.Disconnect(250)
-}
-
-func ConsumeMQTTTopicLocal(ctx context.Context, topic string, clietId string, handlerFunc MessageHandler) {
-	HOST := "tcp://127.0.0.1:1883"
-	USERNAME := "/smarthome:smarthome"
-	PASSWORD := "Ssm4rt2!"
-	TOPIC := topic
-
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(HOST)
-	opts.SetUsername(USERNAME)
-	opts.SetPassword(PASSWORD)
-	opts.SetClientID(clietId)
-
-	client := mqtt.NewClient(opts)
-
-	for i := range 5 {
-		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			log.Errorf("[listener-mqtt] Failed to connect to MQTT broker (Attempt %d/5): %v", i+1, token.Error())
-			if i == 4 {
-				return
-			}
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		log.Infof("[listener-mqtt] Successfully connected to MQTT Local broker")
-		break
-	}
-
-	messageHandler := func(client mqtt.Client, msg mqtt.Message) {
-		go handlerFunc(msg.Payload())
-	}
-
-	if token := client.Subscribe(TOPIC, 0, messageHandler); token.Wait() && token.Error() != nil {
-		log.Errorf("Failed to subscribe: %v", token.Error())
-		client.Disconnect(250)
-		return
-	}
-
-	log.Infof("Subscribed to topic: %s -> Local", TOPIC)
-
-	<-ctx.Done()
-
-	log.Warnf("MQTT context done, cleaning up...")
-	client.Unsubscribe(TOPIC)
+	client.Unsubscribe(topic)
 	client.Disconnect(250)
 }
