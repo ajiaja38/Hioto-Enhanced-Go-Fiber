@@ -47,14 +47,11 @@ func main() {
 	controlDeviceService := service.NewControlDeviceService(db)
 	deviceService := service.NewDeviceService(db)
 	ruleService := service.NewRuleService(db)
-	// logService := service.NewLogService(db)
 
 	// Start Consumer
 	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService)
 	consumerRouter := router.NewConsumerMessageBroker(consumerHandler, ctx)
 	consumerRouter.StartConsumer()
-
-	// cron.LoggerCrobJob(*logService)
 
 	log.Info("Hello From Worker Hioto💡")
 
