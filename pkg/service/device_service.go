@@ -106,7 +106,7 @@ func (s *DeviceService) RegisterDeviceLocal(registrationDto *dto.RegistrationDto
 	return registrationResponse, nil
 }
 
-func (s *DeviceService) RegisterDeviceCloud(registrationDto *dto.ReqCloudDeviceDto) {
+func (s *DeviceService) RegisterDeviceCloud(registrationDto *dto.RegistrationDto) {
 	var status string
 
 	if registrationDto.Type == enum.AKTUATOR {

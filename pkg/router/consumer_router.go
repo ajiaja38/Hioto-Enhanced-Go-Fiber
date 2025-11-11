@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"fmt"
 	"go/hioto/pkg/handler/consumer"
 	messagebroker "go/hioto/pkg/handler/message_broker"
 	"os"
@@ -28,8 +29,6 @@ func NewConsumerMessageBroker(consumerHandler *consumer.ConsumerHandler, ctx con
 }
 
 func (c *ConsumerMessageBroker) StartConsumer() {
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("REGISTRATION_QUEUE"), c.consumerHandler.RegistrationFromCloudHandler)
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("RULES_QUEUE"), c.consumerHandler.RulesHandler)
 	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("MONITORING_QUEUE"), c.consumerHandler.MonitoringDataDevice)
 
 	go func() {
@@ -59,14 +58,38 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []cont
 
 	cloudInstanceName := os.Getenv("MQTT_CLOUD_INSTANCE_NAME")
 	localInstanceName := os.Getenv("MQTT_LOCAL_INSTANCE_NAME")
+	macAddress := os.Getenv("MAC_ADDRESS")
 
 	for _, route := range []ConsumerMqtt{
-		{cloudInstanceName, os.Getenv("CONTROL_ROUTING_KEY"), c.consumerHandler.ControlHandler},
-		{cloudInstanceName, os.Getenv("REGISTRATION_ROUTING_KEY"), c.consumerHandler.RegistrationFromCloudHandler},
-		{cloudInstanceName, os.Getenv("UPDATE_DEVICE_ROUTING_KEY"), c.consumerHandler.UpdateDeviceFromCloudHandler},
-		{cloudInstanceName, os.Getenv("DELETE_DEVICE_ROUTING_KEY"), c.consumerHandler.DeleteDeviceFromCloudHandler},
-		{localInstanceName, os.Getenv("AKTUATOR_ROUTING_KEY"), c.consumerHandler.TestingConsumeAktuator},
-		{localInstanceName, os.Getenv("SENSOR_QUEUE"), c.consumerHandler.ControlSensorHandler},
+		{
+			cloudInstanceName,
+			fmt.Sprintf("%s/%s", os.Getenv("CONTROL_ROUTING_KEY"), macAddress),
+			c.consumerHandler.ControlHandler,
+		},
+		{
+			cloudInstanceName,
+			fmt.Sprintf("%s/%s", os.Getenv("REGISTRATION_ROUTING_KEY"), macAddress),
+			c.consumerHandler.RegistrationFromCloudHandler,
+		},
+		{
+			cloudInstanceName,
+			fmt.Sprintf("%s/%s", os.Getenv("UPDATE_DEVICE_ROUTING_KEY"), macAddress),
+			c.consumerHandler.UpdateDeviceFromCloudHandler},
+		{
+			cloudInstanceName,
+			fmt.Sprintf("%s/%s", os.Getenv("DELETE_DEVICE_ROUTING_KEY"), macAddress),
+			c.consumerHandler.DeleteDeviceFromCloudHandler,
+		},
+		{
+			localInstanceName,
+			os.Getenv("AKTUATOR_ROUTING_KEY"),
+			c.consumerHandler.TestingConsumeAktuator,
+		},
+		{
+			localInstanceName,
+			os.Getenv("SENSOR_QUEUE"),
+			c.consumerHandler.ControlSensorHandler,
+		},
 	} {
 		go messagebroker.ConsumeMQTTTopic(createCtx(), route.InstanceName, route.Topic, route.handlerFunc)
 	}

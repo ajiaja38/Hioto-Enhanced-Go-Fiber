@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/service"
-	"os"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -42,7 +41,7 @@ func (h *ConsumerHandler) RegistrationHandler(message []byte) {
 }
 
 func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte) {
-	var registrationDto dto.ReqCloudDeviceDto
+	var registrationDto dto.RegistrationDto
 	err := json.Unmarshal(message, &registrationDto)
 
 	if err != nil {
@@ -50,26 +49,16 @@ func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte) {
 		return
 	}
 
-	if registrationDto.MacServer != os.Getenv("MAC_ADDRESS") {
-		log.Errorf("Invalid mac server: %v", registrationDto.MacServer)
-		return
-	}
-
 	h.deviceService.RegisterDeviceCloud(&registrationDto)
 }
 
 func (h *ConsumerHandler) UpdateDeviceFromCloudHandler(message []byte) {
-	var updateDeviceFromCloudDto dto.ReqUpdateDeviceDtoCloud
+	var updateDeviceFromCloudDto dto.ReqUpdateDeviceDto
 
 	err := json.Unmarshal(message, &updateDeviceFromCloudDto)
 
 	if err != nil {
 		log.Errorf("Failed to unmarshal update device message: %v", err)
-		return
-	}
-
-	if updateDeviceFromCloudDto.MacServer != os.Getenv("MAC_ADDRESS") {
-		log.Errorf("Invalid mac server: %v", updateDeviceFromCloudDto.MacServer)
 		return
 	}
 
@@ -99,7 +88,7 @@ func (h *ConsumerHandler) RulesHandler(message []byte) {
 }
 
 func (h *ConsumerHandler) ControlHandler(message []byte) {
-	var controlDeviceDto dto.ControlDto
+	var controlDeviceDto dto.ControlLocalDto
 	err := json.Unmarshal(message, &controlDeviceDto)
 
 	if err != nil {
@@ -111,11 +100,6 @@ func (h *ConsumerHandler) ControlHandler(message []byte) {
 
 	if err != nil {
 		log.Errorf("Validation error: %v", err)
-		return
-	}
-
-	if controlDeviceDto.MacServer != os.Getenv("MAC_ADDRESS") {
-		log.Errorf("Invalid mac server: %v", controlDeviceDto.MacServer)
 		return
 	}
 
@@ -138,11 +122,6 @@ func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte) {
 
 	if err != nil {
 		log.Errorf("Failed to unmarshal delete device message: %v", err)
-		return
-	}
-
-	if deleteDeviceDtoFromCloud.MacServer != os.Getenv("MAC_ADDRESS") {
-		log.Errorf("Invalid mac server: %v", deleteDeviceDtoFromCloud.MacServer)
 		return
 	}
 

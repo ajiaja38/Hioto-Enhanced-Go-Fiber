@@ -15,11 +15,6 @@ type RegistrationDto struct {
 	Minor    string           `json:"minor" validate:"required"`
 }
 
-type ReqCloudDeviceDto struct {
-	RegistrationDto
-	MacServer string `json:"mac_server" validate:"required"`
-}
-
 type ResponseDeviceDto struct {
 	ID           uint             `json:"id"`
 	Guid         string           `json:"guid"`
@@ -51,14 +46,8 @@ type ReqUpdateDeviceDto struct {
 	Minor    string           `json:"minor" validate:"required"`
 }
 
-type ReqUpdateDeviceDtoCloud struct {
-	ReqUpdateDeviceDto
-	MacServer string `json:"mac_server" validate:"required"`
-}
-
 type ReqDeleteDeviceFromCloudDto struct {
-	Guid      string `json:"guid" validate:"required"`
-	MacServer string `json:"mac_server" validate:"required"`
+	Guid string `json:"guid" validate:"required"`
 }
 
 type ReqDeleteDeviceToCloudDto struct {

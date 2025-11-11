@@ -26,7 +26,7 @@ func NewControlDeviceService(db *gorm.DB) *ControlDeviceService {
 	}
 }
 
-func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlDto) {
+func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlLocalDto) {
 	var device model.Registration
 	value := strings.Split(controlDto.Message, "#")
 
