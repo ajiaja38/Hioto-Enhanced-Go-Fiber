@@ -1,6 +1,7 @@
 [
   {
     "type": "SENSOR",
-    "message": "eb527bd8-293a-4d2b-80ae-0f1f130f018a#11"
+    "message": "04e89950-271d-48e2-9111-5d1b04a75e71#11",
+    "mac_server": "01:02:03:04:05:06"
   }
 ]

@@ -204,6 +204,12 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 
 	if err := s.db.Where("input_guid = ?", guid).Where("input_value = ?", value).Find(&ruleDevices).Error; err != nil {
 		log.Errorf("Failed to fetch rule devices: %v 💥", err)
+		return
+	}
+
+	if len(ruleDevices) == 0 {
+		log.Error("No rule devices found 💥")
+		return
 	}
 
 	for _, ruleDevice := range ruleDevices {
