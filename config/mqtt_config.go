@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -85,20 +86,20 @@ func CloseAllMqttInstances() {
 
 func CreateMqttInstance() {
 	if err := initializeMqtt(&MqttConfig{
-		InstanceName: "MQTT_CLOUD",
-		Host:         "tcp://hioto-rmq.pptik.id:1883",
-		Username:     "/hioto:hioto",
-		Password:     "ncHPk8BonsxqKyW",
+		InstanceName: os.Getenv("MQTT_CLOUD_INSTANCE_NAME"),
+		Host:         os.Getenv("MQTT_CLOUD_HOST"),
+		Username:     os.Getenv("MQTT_CLOUD_USERNAME"),
+		Password:     os.Getenv("MQTT_CLOUD_PASSWORD"),
 		ClientId:     "listener-mqtt-cloud",
 	}); err != nil {
 		log.Error(err)
 	}
 
 	if err := initializeMqtt(&MqttConfig{
-		InstanceName: "MQTT_LOCAL",
-		Host:         "tcp://127.0.0.1:1883",
-		Username:     "/smarthome:smarthome",
-		Password:     "Ssm4rt2!",
+		InstanceName: os.Getenv("MQTT_LOCAL_INSTANCE_NAME"),
+		Host:         os.Getenv("MQTT_LOCAL_HOST"),
+		Username:     os.Getenv("MQTT_LOCAL_USERNAME"),
+		Password:     os.Getenv("MQTT_LOCAL_PASSWORD"),
 		ClientId:     "listener-mqtt-local",
 	}); err != nil {
 		log.Error(err)
