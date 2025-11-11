@@ -3,11 +3,11 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"go/hioto/config"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/enum"
 	messagebroker "go/hioto/pkg/handler/message_broker"
 	"go/hioto/pkg/model"
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -82,7 +82,7 @@ func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRul
 			}
 
 			responseRules = append(responseRules, dto.ResponseRuleDto{
-				MacServer:   os.Getenv("MAC_ADDRESS"),
+				MacServer:   config.MAC_ADDRESS.GetValue(),
 				InputGuid:   rule.InputGuid,
 				InputValue:  rule.InputValue,
 				OutputGuid:  rule.OutputGuid,
@@ -101,10 +101,10 @@ func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRul
 	}
 
 	messagebroker.PublishToRmq(
-		os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"),
+		config.RMQ_CLOUD_INSTANCE.GetValue(),
 		responseToJson,
-		os.Getenv("RULES_RESPONSE_QUEUE"),
-		os.Getenv("EXCHANGE_DIRECT"),
+		config.RULES_RESPONSE_QUEUE.GetValue(),
+		config.EXCHANGE_DIRECT.GetValue(),
 	)
 
 	log.Info("Rule was created successfully ✅")
@@ -132,7 +132,7 @@ func (s *RuleService) GetRulesByGuid(guid string) ([]dto.ResponseRuleDto, error)
 	var responseRules []dto.ResponseRuleDto
 	for _, rule := range rules {
 		responseRules = append(responseRules, dto.ResponseRuleDto{
-			MacServer:   os.Getenv("MAC_ADDRESS"),
+			MacServer:   config.MAC_ADDRESS.GetValue(),
 			InputGuid:   rule.InputGuid,
 			InputValue:  rule.InputValue,
 			OutputGuid:  rule.OutputGuid,

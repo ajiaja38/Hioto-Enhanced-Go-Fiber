@@ -19,18 +19,11 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/joho/godotenv"
 )
 
-func init() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Error("Error loading .env file")
-	}
-}
-
 func main() {
+	config.Load()
+
 	db, errDb := config.DBConnection()
 
 	if errDb != nil {
@@ -66,9 +59,9 @@ func main() {
 		ErrorHandler: err.ErrorHandler,
 	})
 
-	port := os.Getenv("PORT")
+	port := config.PORT.GetValue()
 	if port == "" {
-		port = "8000"
+		port = "8080"
 	}
 
 	app.Use(logger.New())

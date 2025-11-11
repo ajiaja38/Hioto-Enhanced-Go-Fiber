@@ -3,9 +3,9 @@ package router
 import (
 	"context"
 	"fmt"
+	"go/hioto/config"
 	"go/hioto/pkg/handler/consumer"
 	messagebroker "go/hioto/pkg/handler/message_broker"
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
@@ -29,7 +29,7 @@ func NewConsumerMessageBroker(consumerHandler *consumer.ConsumerHandler, ctx con
 }
 
 func (c *ConsumerMessageBroker) StartConsumer() {
-	go messagebroker.ConsumeRmq(c.ctx, os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"), os.Getenv("MONITORING_QUEUE"), c.consumerHandler.MonitoringDataDevice)
+	go messagebroker.ConsumeRmq(c.ctx, config.RMQ_LOCAL_INSTANCE.GetValue(), config.MONITORING_QUEUE.GetValue(), c.consumerHandler.MonitoringDataDevice)
 
 	go func() {
 		for {
@@ -56,38 +56,34 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []cont
 		return c
 	}
 
-	cloudInstanceName := os.Getenv("MQTT_CLOUD_INSTANCE_NAME")
-	localInstanceName := os.Getenv("MQTT_LOCAL_INSTANCE_NAME")
-	macAddress := os.Getenv("MAC_ADDRESS")
-
 	for _, route := range []ConsumerMqtt{
 		{
-			cloudInstanceName,
-			fmt.Sprintf("%s/%s", os.Getenv("CONTROL_ROUTING_KEY"), macAddress),
+			config.MQTT_CLOUD_INSTANCE_NAME.GetValue(),
+			fmt.Sprintf("%s/%s", config.CONTROL_ROUTING_KEY.GetValue(), config.MAC_ADDRESS.GetValue()),
 			c.consumerHandler.ControlHandler,
 		},
 		{
-			cloudInstanceName,
-			fmt.Sprintf("%s/%s", os.Getenv("REGISTRATION_ROUTING_KEY"), macAddress),
+			config.MQTT_CLOUD_INSTANCE_NAME.GetValue(),
+			fmt.Sprintf("%s/%s", config.REGISTRATION_ROUTING_KEY.GetValue(), config.MAC_ADDRESS.GetValue()),
 			c.consumerHandler.RegistrationFromCloudHandler,
 		},
 		{
-			cloudInstanceName,
-			fmt.Sprintf("%s/%s", os.Getenv("UPDATE_DEVICE_ROUTING_KEY"), macAddress),
+			config.MQTT_CLOUD_INSTANCE_NAME.GetValue(),
+			fmt.Sprintf("%s/%s", config.UPDATE_DEVICE_ROUTING_KEY.GetValue(), config.MAC_ADDRESS.GetValue()),
 			c.consumerHandler.UpdateDeviceFromCloudHandler},
 		{
-			cloudInstanceName,
-			fmt.Sprintf("%s/%s", os.Getenv("DELETE_DEVICE_ROUTING_KEY"), macAddress),
+			config.MQTT_CLOUD_INSTANCE_NAME.GetValue(),
+			fmt.Sprintf("%s/%s", config.DELETE_DEVICE_ROUTING_KEY.GetValue(), config.MAC_ADDRESS.GetValue()),
 			c.consumerHandler.DeleteDeviceFromCloudHandler,
 		},
 		{
-			localInstanceName,
-			os.Getenv("AKTUATOR_ROUTING_KEY"),
+			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
+			config.AKTUATOR_ROUTING_KEY.GetValue(),
 			c.consumerHandler.TestingConsumeAktuator,
 		},
 		{
-			localInstanceName,
-			os.Getenv("SENSOR_QUEUE"),
+			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
+			config.SENSOR_QUEUE.GetValue(),
 			c.consumerHandler.ControlSensorHandler,
 		},
 	} {

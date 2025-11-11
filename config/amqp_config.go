@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 
@@ -86,12 +85,12 @@ func CloseRabbitMQ() {
 
 func CreateRmqInstance() {
 	// Init RabbitMQ Cloud
-	if err := initializeRabbitMQ(os.Getenv("RMQ_HIOTO"), os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE")); err != nil {
+	if err := initializeRabbitMQ(RMQ_CLOUD_URI.GetValue(), RMQ_CLOUD_INSTANCE.GetValue()); err != nil {
 		log.Fatal(err)
 	}
 
 	// Init RabbitMQ Local
-	if err := initializeRabbitMQ(os.Getenv("RMQ_URI"), os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE")); err != nil {
+	if err := initializeRabbitMQ(RMQ_LOCAL_URI.GetValue(), RMQ_LOCAL_INSTANCE.GetValue()); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -3,11 +3,11 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"go/hioto/config"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/enum"
 	messagebroker "go/hioto/pkg/handler/message_broker"
 	"go/hioto/pkg/model"
-	"os"
 	"strings"
 	"time"
 
@@ -88,10 +88,10 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlLocalDt
 	log.Info("Transaction committed successfully ✅")
 
 	messagebroker.PublishToRoutingKey(
-		os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"),
+		config.RMQ_LOCAL_INSTANCE.GetValue(),
 		[]byte(controlDto.Message),
-		os.Getenv("EXCHANGE_TOPIC"),
-		os.Getenv("AKTUATOR_ROUTING_KEY"),
+		config.EXCHANGE_TOPIC.GetValue(),
+		config.AKTUATOR_ROUTING_KEY.GetValue(),
 	)
 }
 
@@ -157,10 +157,10 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	log.Info("Transaction for local committed successfully ✅")
 
 	messagebroker.PublishToRoutingKey(
-		os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"),
+		config.RMQ_LOCAL_INSTANCE.GetValue(),
 		[]byte(controlDto.Message),
-		os.Getenv("EXCHANGE_TOPIC"),
-		os.Getenv("AKTUATOR_ROUTING_KEY"),
+		config.EXCHANGE_TOPIC.GetValue(),
+		config.AKTUATOR_ROUTING_KEY.GetValue(),
 	)
 
 	bodyToCloud := dto.ResCloudDeviceDto{
@@ -179,7 +179,7 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 			CreatedAt:    device.CreatedAt,
 			UpdatedAt:    device.UpdatedAt,
 		},
-		MacServer: os.Getenv("MAC_ADDRESS"),
+		MacServer: config.MAC_ADDRESS.GetValue(),
 	}
 
 	jsonBody, err := json.Marshal(bodyToCloud)
@@ -190,10 +190,10 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 	}
 
 	messagebroker.PublishToRmq(
-		os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"),
+		config.RMQ_CLOUD_INSTANCE.GetValue(),
 		jsonBody,
-		os.Getenv("UPDATE_RES_CLOUD"),
-		"amq.direct",
+		config.UPDATE_RES_CLOUD.GetValue(),
+		config.EXCHANGE_DIRECT.GetValue(),
 	)
 
 	return nil
@@ -247,10 +247,10 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 		}
 
 		messagebroker.PublishToRoutingKey(
-			os.Getenv("RMQ_HIOTO_LOCAL_INSTANCE"),
+			config.RMQ_LOCAL_INSTANCE.GetValue(),
 			[]byte(messageToAktuator),
-			os.Getenv("EXCHANGE_TOPIC"),
-			os.Getenv("AKTUATOR_ROUTING_KEY"),
+			config.EXCHANGE_TOPIC.GetValue(),
+			config.AKTUATOR_ROUTING_KEY.GetValue(),
 		)
 
 		log.Infof("Sensor rule executed for aktuator %s with value %s ✅", aktuator.Name, ruleDevice.OutputValue)

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"time"
 
@@ -86,21 +85,21 @@ func CloseAllMqttInstances() {
 
 func CreateMqttInstance() {
 	if err := initializeMqtt(&MqttConfig{
-		InstanceName: os.Getenv("MQTT_CLOUD_INSTANCE_NAME"),
-		Host:         os.Getenv("MQTT_CLOUD_HOST"),
-		Username:     os.Getenv("MQTT_CLOUD_USERNAME"),
-		Password:     os.Getenv("MQTT_CLOUD_PASSWORD"),
-		ClientId:     "listener-mqtt-cloud",
+		InstanceName: MQTT_CLOUD_INSTANCE_NAME.GetValue(),
+		Host:         MQTT_CLOUD_HOST.GetValue(),
+		Username:     MQTT_CLOUD_USERNAME.GetValue(),
+		Password:     MQTT_CLOUD_PASSWORD.GetValue(),
+		ClientId:     MQTT_CLOUD_CLIENT_ID.GetValue(),
 	}); err != nil {
 		log.Error(err)
 	}
 
 	if err := initializeMqtt(&MqttConfig{
-		InstanceName: os.Getenv("MQTT_LOCAL_INSTANCE_NAME"),
-		Host:         os.Getenv("MQTT_LOCAL_HOST"),
-		Username:     os.Getenv("MQTT_LOCAL_USERNAME"),
-		Password:     os.Getenv("MQTT_LOCAL_PASSWORD"),
-		ClientId:     "listener-mqtt-local",
+		InstanceName: MQTT_LOCAL_INSTANCE_NAME.GetValue(),
+		Host:         MQTT_LOCAL_HOST.GetValue(),
+		Username:     MQTT_LOCAL_USERNAME.GetValue(),
+		Password:     MQTT_LOCAL_PASSWORD.GetValue(),
+		ClientId:     MQTT_LOCAL_CLIENT_ID.GetValue(),
 	}); err != nil {
 		log.Error(err)
 	}

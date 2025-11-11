@@ -3,11 +3,11 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"go/hioto/config"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/enum"
 	messagebroker "go/hioto/pkg/handler/message_broker"
 	"go/hioto/pkg/model"
-	"os"
 	"strings"
 	"time"
 
@@ -73,7 +73,7 @@ func (s *DeviceService) RegisterDeviceLocal(registrationDto *dto.RegistrationDto
 			CreatedAt:    registration.CreatedAt,
 			UpdatedAt:    registration.UpdatedAt,
 		},
-		MacServer: os.Getenv("MAC_ADDRESS"),
+		MacServer: config.MAC_ADDRESS.GetValue(),
 	}
 
 	jsonBody, err := json.Marshal(bodyToCloud)
@@ -83,7 +83,12 @@ func (s *DeviceService) RegisterDeviceLocal(registrationDto *dto.RegistrationDto
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"), jsonBody, os.Getenv("REGISTER_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(
+		config.RMQ_CLOUD_INSTANCE.GetValue(),
+		jsonBody,
+		config.REGISTER_RES_CLOUD.GetValue(),
+		config.EXCHANGE_DIRECT.GetValue(),
+	)
 
 	registrationResponse = &dto.ResponseDeviceDto{
 		ID:           registration.ID,
@@ -246,7 +251,7 @@ func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (devi
 			CreatedAt:    deviceUpdated.CreatedAt,
 			UpdatedAt:    deviceUpdated.UpdatedAt,
 		},
-		MacServer: os.Getenv("MAC_ADDRESS"),
+		MacServer: config.MAC_ADDRESS.GetValue(),
 	}
 
 	jsonBody, err := json.Marshal(bodyToCloud)
@@ -256,7 +261,12 @@ func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (devi
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"), jsonBody, os.Getenv("UPDATE_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(
+		config.RMQ_CLOUD_INSTANCE.GetValue(),
+		jsonBody,
+		config.UPDATE_RES_CLOUD.GetValue(),
+		config.EXCHANGE_DIRECT.GetValue(),
+	)
 
 	return deviceUpdated, nil
 }
@@ -344,7 +354,7 @@ func (s *DeviceService) DeleteDevice(guid string) error {
 
 	payloadToCloud := dto.ReqDeleteDeviceToCloudDto{
 		Guid:      guid,
-		MacServer: os.Getenv("MAC_ADDRESS"),
+		MacServer: config.MAC_ADDRESS.GetValue(),
 	}
 
 	jsonBody, err := json.Marshal(payloadToCloud)
@@ -354,7 +364,12 @@ func (s *DeviceService) DeleteDevice(guid string) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
 	}
 
-	messagebroker.PublishToRmq(os.Getenv("RMQ_HIOTO_CLOUD_INSTANCE"), jsonBody, os.Getenv("DELETE_RES_CLOUD"), "amq.direct")
+	messagebroker.PublishToRmq(
+		config.RMQ_CLOUD_INSTANCE.GetValue(),
+		jsonBody,
+		config.DELETE_RES_CLOUD.GetValue(),
+		config.EXCHANGE_DIRECT.GetValue(),
+	)
 
 	log.Infof("Device successfully deleted: %s ✅", guid)
 	return nil
