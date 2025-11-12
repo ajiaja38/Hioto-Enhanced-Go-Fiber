@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"go/hioto/config"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/enum"
@@ -144,8 +143,6 @@ func (s *DeviceService) GetAllDevice(deviceType string) ([]dto.ResponseDeviceDto
 
 	var query *gorm.DB = s.db
 
-	fmt.Println("Device Type:", deviceType)
-
 	if deviceType != "" {
 		query = query.Where("type = ?", deviceType)
 	}
@@ -227,8 +224,8 @@ func (s *DeviceService) UpdateDeviceRMQCloud(updateDto *dto.ReqUpdateDeviceDto) 
 	log.Infof("Device successfully updated: %s ✅", deviceUpdated.Name)
 }
 
-func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (deviceUpdated *model.Registration, err error) {
-	deviceUpdated, err = s.updateQuery(updateDto)
+func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (*dto.ResponseDeviceDto, error) {
+	updatedDevice, err := s.updateQuery(updateDto)
 
 	if err != nil {
 		log.Errorf("Error updating device: %v 💥", err)
@@ -237,19 +234,19 @@ func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (devi
 
 	bodyToCloud := dto.ResCloudDeviceDto{
 		ResponseDeviceDto: dto.ResponseDeviceDto{
-			ID:           deviceUpdated.ID,
-			Guid:         deviceUpdated.Guid,
-			Mac:          deviceUpdated.Mac,
-			Type:         deviceUpdated.Type,
-			Quantity:     deviceUpdated.Quantity,
-			Name:         deviceUpdated.Name,
-			Version:      deviceUpdated.Version,
-			Minor:        deviceUpdated.Minor,
-			Status:       deviceUpdated.Status,
-			StatusDevice: string(deviceUpdated.StatusDevice),
-			LastSeen:     deviceUpdated.LastSeen,
-			CreatedAt:    deviceUpdated.CreatedAt,
-			UpdatedAt:    deviceUpdated.UpdatedAt,
+			ID:           updatedDevice.ID,
+			Guid:         updatedDevice.Guid,
+			Mac:          updatedDevice.Mac,
+			Type:         updatedDevice.Type,
+			Quantity:     updatedDevice.Quantity,
+			Name:         updatedDevice.Name,
+			Version:      updatedDevice.Version,
+			Minor:        updatedDevice.Minor,
+			Status:       updatedDevice.Status,
+			StatusDevice: string(updatedDevice.StatusDevice),
+			LastSeen:     updatedDevice.LastSeen,
+			CreatedAt:    updatedDevice.CreatedAt,
+			UpdatedAt:    updatedDevice.UpdatedAt,
 		},
 		MacServer: config.MAC_ADDRESS.GetValue(),
 	}
@@ -268,7 +265,23 @@ func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (devi
 		config.EXCHANGE_DIRECT.GetValue(),
 	)
 
-	return deviceUpdated, nil
+	registrationResponse := &dto.ResponseDeviceDto{
+		ID:           updatedDevice.ID,
+		Guid:         updatedDevice.Guid,
+		Mac:          updatedDevice.Mac,
+		Type:         updatedDevice.Type,
+		Quantity:     updatedDevice.Quantity,
+		Name:         updatedDevice.Name,
+		Version:      updatedDevice.Version,
+		Minor:        updatedDevice.Minor,
+		Status:       updatedDevice.Status,
+		StatusDevice: string(updatedDevice.StatusDevice),
+		LastSeen:     updatedDevice.LastSeen,
+		CreatedAt:    updatedDevice.CreatedAt,
+		UpdatedAt:    updatedDevice.UpdatedAt,
+	}
+
+	return registrationResponse, nil
 }
 
 func (s *DeviceService) updateQuery(updateDto *dto.ReqUpdateDeviceDto) (*model.Registration, error) {

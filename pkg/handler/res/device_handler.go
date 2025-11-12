@@ -56,13 +56,13 @@ func (h *DeviceHandler) GetDeviceByGuidHandler(c *fiber.Ctx) error {
 }
 
 func (h *DeviceHandler) UpdateDeviceByGuidHandler(c *fiber.Ctx) error {
-	var updateDeviceDto *dto.ReqUpdateDeviceDto
+	var updateDeviceDto dto.ReqUpdateDeviceDto
 
 	if err := utils.ValidateRequestBody(c, h.validator, &updateDeviceDto); err != nil {
 		return err
 	}
 
-	device, err := h.deviceService.UpdateDeviceAPI(updateDeviceDto)
+	device, err := h.deviceService.UpdateDeviceAPI(&updateDeviceDto)
 
 	if err != nil {
 		return err
