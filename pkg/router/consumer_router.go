@@ -87,7 +87,12 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []cont
 			c.consumerHandler.ControlSensorHandler,
 		},
 	} {
-		go messagebroker.ConsumeMQTTTopic(createCtx(), route.InstanceName, route.Topic, route.handlerFunc)
+		go messagebroker.ConsumeMQTTTopic(
+			createCtx(),
+			route.InstanceName,
+			route.Topic,
+			route.handlerFunc,
+		)
 	}
 
 	return cancels

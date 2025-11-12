@@ -149,19 +149,16 @@ func (s *RuleService) DeleteRulesByGuidSensor(guid string) error {
 	var device model.Registration
 
 	if err := s.db.Where("guid = ?", guid).First(&model.Registration{}).Scan(&device).Error; err != nil {
-		log.Errorf("Sensor not found: %v 💥", err)
 		return fiber.NewError(fiber.StatusNotFound, "Sensor not found")
 	}
 
 	if device.Type != enum.SENSOR {
-		log.Errorf("Device is not a sensor: %v 💥", device.Type)
 		return fiber.NewError(fiber.StatusBadRequest, "Device is not a sensor")
 	}
 
 	err := s.db.Where("input_guid = ?", guid).Delete(&model.RuleDevice{}).Error
 
 	if err != nil {
-		log.Errorf("Failed to delete rules: %v", err)
 		return fiber.NewError(fiber.StatusBadRequest, "Failed to delete rules")
 	}
 
