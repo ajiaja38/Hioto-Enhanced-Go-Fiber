@@ -115,17 +115,13 @@ func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRul
 func (s *RuleService) GetRulesByGuid(guid string) ([]dto.ResponseRuleDto, error) {
 	var rules []model.RuleDevice
 
-	err := s.db.
-		Where("input_guid = ? OR output_guid = ?", guid, guid).
-		Find(&rules).Error
-
-	if err != nil {
+	if err := s.db.Where("input_guid = ? OR output_guid = ?", guid, guid).Find(&rules).Error; err != nil {
 		log.Errorf("Failed to get rules: %v", err)
 		return nil, fiber.NewError(fiber.StatusNotFound, "Failed to get rules")
 	}
 
 	if len(rules) == 0 {
-		log.Errorf("Failed to get rules: %v", err)
+		log.Error("Failed to get rules, rules not found")
 		return nil, fiber.NewError(fiber.StatusNotFound, "Failed to get rules, rules not found")
 	}
 
@@ -156,9 +152,7 @@ func (s *RuleService) DeleteRulesByGuidSensor(guid string) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Device is not a sensor")
 	}
 
-	err := s.db.Where("input_guid = ?", guid).Delete(&model.RuleDevice{}).Error
-
-	if err != nil {
+	if err := s.db.Where("input_guid = ?", guid).Delete(&model.RuleDevice{}).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Failed to delete rules")
 	}
 

@@ -28,9 +28,7 @@ func (h *ControlDeviceHandler) ControlDeviceHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	err := h.controlDeviceService.ControlDeviceLocal(&controlDto)
-
-	if err != nil {
+	if err := h.controlDeviceService.ControlDeviceLocal(&controlDto); err != nil {
 		return err
 	}
 

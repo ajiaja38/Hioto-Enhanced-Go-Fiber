@@ -286,9 +286,15 @@ func (s *DeviceService) UpdateDeviceAPI(updateDto *dto.ReqUpdateDeviceDto) (*dto
 
 func (s *DeviceService) updateQuery(updateDto *dto.ReqUpdateDeviceDto) (*model.Registration, error) {
 	updateQuery := s.db.Exec(`
-    UPDATE registrations
-    SET mac = ?, type = ?, quantity = ?, name = ?, version = ?, minor = ?, updated_at = ?
-    WHERE guid = ?
+        UPDATE registrations
+        SET mac = ?,
+            type = ?,
+            quantity = ?,
+            name = ?,
+            version = ?,
+            minor = ?,
+            updated_at = ?
+        WHERE guid = ?
 	`, updateDto.Mac, updateDto.Type, updateDto.Quantity, updateDto.Name, updateDto.Version, updateDto.Minor, time.Now().In(location), updateDto.Guid)
 
 	if updateQuery.RowsAffected == 0 {
@@ -308,9 +314,7 @@ func (s *DeviceService) updateQuery(updateDto *dto.ReqUpdateDeviceDto) (*model.R
 }
 
 func (s *DeviceService) DeleteDeviceRMQ(guid string) {
-	err := s.DeleteDevice(guid)
-
-	if err != nil {
+	if err := s.DeleteDevice(guid); err != nil {
 		log.Errorf("Error deleting device: %v 💥", err)
 		return
 	}

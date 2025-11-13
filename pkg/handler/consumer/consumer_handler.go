@@ -30,9 +30,8 @@ func NewConsumerHandler(ruleService *service.RuleService, deviceService *service
 
 func (h *ConsumerHandler) RegistrationHandler(message []byte) {
 	var registrationDto dto.RegistrationDto
-	err := json.Unmarshal(message, &registrationDto)
 
-	if err != nil {
+	if err := json.Unmarshal(message, &registrationDto); err != nil {
 		log.Errorf("Failed to unmarshal registration message: %v", err)
 		return
 	}
@@ -42,9 +41,8 @@ func (h *ConsumerHandler) RegistrationHandler(message []byte) {
 
 func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte) {
 	var registrationDto dto.RegistrationDto
-	err := json.Unmarshal(message, &registrationDto)
 
-	if err != nil {
+	if err := json.Unmarshal(message, &registrationDto); err != nil {
 		log.Errorf("Failed to unmarshal registration message: %v", err)
 		return
 	}
@@ -55,9 +53,7 @@ func (h *ConsumerHandler) RegistrationFromCloudHandler(message []byte) {
 func (h *ConsumerHandler) UpdateDeviceFromCloudHandler(message []byte) {
 	var updateDeviceFromCloudDto dto.ReqUpdateDeviceDto
 
-	err := json.Unmarshal(message, &updateDeviceFromCloudDto)
-
-	if err != nil {
+	if err := json.Unmarshal(message, &updateDeviceFromCloudDto); err != nil {
 		log.Errorf("Failed to unmarshal update device message: %v", err)
 		return
 	}
@@ -77,9 +73,8 @@ func (h *ConsumerHandler) UpdateDeviceFromCloudHandler(message []byte) {
 
 func (h *ConsumerHandler) RulesHandler(message []byte) {
 	var createRuleDto dto.CreateRuleDto
-	err := json.Unmarshal(message, &createRuleDto)
 
-	if err != nil {
+	if err := json.Unmarshal(message, &createRuleDto); err != nil {
 		log.Errorf("Failed to unmarshal rule message: %v", err)
 		return
 	}
@@ -89,16 +84,13 @@ func (h *ConsumerHandler) RulesHandler(message []byte) {
 
 func (h *ConsumerHandler) ControlHandler(message []byte) {
 	var controlDeviceDto dto.ControlLocalDto
-	err := json.Unmarshal(message, &controlDeviceDto)
 
-	if err != nil {
+	if err := json.Unmarshal(message, &controlDeviceDto); err != nil {
 		log.Errorf("Failed to unmarshal control message: %v", err)
 		return
 	}
 
-	err = validate.Struct(controlDeviceDto)
-
-	if err != nil {
+	if err := validate.Struct(controlDeviceDto); err != nil {
 		log.Errorf("Validation error: %v", err)
 		return
 	}
@@ -118,9 +110,7 @@ func (h *ConsumerHandler) ControlSensorHandler(message []byte) {
 func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte) {
 	var deleteDeviceDtoFromCloud dto.ReqDeleteDeviceFromCloudDto
 
-	err := json.Unmarshal(message, &deleteDeviceDtoFromCloud)
-
-	if err != nil {
+	if err := json.Unmarshal(message, &deleteDeviceDtoFromCloud); err != nil {
 		log.Errorf("Failed to unmarshal delete device message: %v", err)
 		return
 	}

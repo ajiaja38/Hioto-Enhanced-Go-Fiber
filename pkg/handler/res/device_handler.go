@@ -72,9 +72,7 @@ func (h *DeviceHandler) UpdateDeviceByGuidHandler(c *fiber.Ctx) error {
 }
 
 func (h *DeviceHandler) DeleteDeviceByGuidHandler(c *fiber.Ctx) error {
-	err := h.deviceService.DeleteDevice(c.Params("guid"))
-
-	if err != nil {
+	if err := h.deviceService.DeleteDevice(c.Params("guid")); err != nil {
 		return err
 	}
 
