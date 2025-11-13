@@ -37,10 +37,7 @@ func initializeRabbitMQ(url, rmqInstance string) error {
 				return err
 			}
 
-			rmqInstances[rmqInstance] = &RMQInstance{
-				Conn:    conn,
-				Channel: ch,
-			}
+			rmqInstances[rmqInstance] = &RMQInstance{Conn: conn, Channel: ch}
 
 			log.Info("✅ RabbitMQ channel opened successfully 🚀")
 			return nil
