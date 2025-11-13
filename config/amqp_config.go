@@ -42,7 +42,7 @@ func initializeRabbitMQ(url, rmqInstance string) error {
 				Channel: ch,
 			}
 
-			log.Info("✅ RabbitMQ channel opened successfully")
+			log.Info("✅ RabbitMQ channel opened successfully 🚀")
 			return nil
 		}
 
