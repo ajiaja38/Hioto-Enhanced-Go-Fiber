@@ -27,7 +27,7 @@ func main() {
 	db, errDb := config.DBConnection()
 
 	if errDb != nil {
-		log.Fatalf("Failed to connect to database: %v", errDb)
+		log.Fatalf("Failed to connect to database %s: %v", config.DB_PATH.GetValue(), errDb)
 	}
 
 	utils.AutoMigrateDb(db)
