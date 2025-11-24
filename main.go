@@ -90,7 +90,7 @@ func main() {
 	}()
 
 	<-ctx.Done()
-	log.Warn("Shutting down gracefully...")
+	log.Warn("Shutting down gracefully....")
 
 	if err := app.Shutdown(); err != nil {
 		log.Errorf("Error shutting down Fiber: %v", err)
