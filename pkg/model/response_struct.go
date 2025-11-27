@@ -4,7 +4,7 @@ type ResponseEntity[T any] struct {
 	Code    int             `json:"code"`
 	Status  bool            `json:"status"`
 	Message string          `json:"message"`
-	Data    T               `json:"data,omitempty"`
+	Data    T               `json:"data"`
 	Meta    *MetaPagination `json:"meta,omitempty"`
 }
 
