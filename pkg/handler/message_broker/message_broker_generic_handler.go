@@ -108,11 +108,12 @@ func ConsumeRmq(ctx context.Context, instanceName, queueName string, handler Mes
 
 func ConsumeMQTTTopic(ctx context.Context, instanceName, topic string, handlerFunc MessageHandler) {
 	client, err := config.GetMqttInstance(instanceName)
-
 	if err != nil {
-		log.Error(err)
+		log.Errorf("MQTT instance error: %v", err)
 		return
 	}
+
+	config.MqttSubscriptions.Store(topic, handlerFunc)
 
 	messageHandler := func(client mqtt.Client, msg mqtt.Message) {
 		go handlerFunc(msg.Payload())
@@ -120,15 +121,14 @@ func ConsumeMQTTTopic(ctx context.Context, instanceName, topic string, handlerFu
 
 	if token := client.Subscribe(topic, 0, messageHandler); token.Wait() && token.Error() != nil {
 		log.Errorf("Failed to subscribe: %v", token.Error())
-		client.Disconnect(250)
 		return
 	}
 
-	log.Infof("Subscribed to topic: %s", topic)
+	log.Infof("📡 Subscribed to MQTT topic: %s", topic)
 
 	<-ctx.Done()
 
-	log.Warnf("MQTT context done, cleaning up...")
+	log.Warnf("MQTT context closed, stopping consumer for: %s", topic)
+
 	client.Unsubscribe(topic)
-	client.Disconnect(250)
 }
