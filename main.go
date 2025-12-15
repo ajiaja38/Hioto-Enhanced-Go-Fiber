@@ -52,7 +52,7 @@ func main() {
 	consumerRouter := router.NewConsumerMessageBroker(consumerHandler, ctx)
 	consumerRouter.StartConsumer()
 
-	log.Info("Hello From Worker Hioto Gokils 💡")
+	log.Info("Hello From Worker Hioto 💡")
 
 	// REST API FIBER
 	app := fiber.New(fiber.Config{
