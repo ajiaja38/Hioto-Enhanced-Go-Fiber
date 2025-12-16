@@ -208,7 +208,7 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 	}
 
 	if len(ruleDevices) == 0 {
-		log.Error("No rule devices found 💥")
+		log.Error("No rule on devices found 💥")
 		return
 	}
 
