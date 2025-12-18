@@ -74,7 +74,7 @@ func main() {
 
 	route := app.Group("/api")
 	route.Get("/", func(c *fiber.Ctx) error {
-		return utils.SuccessResponse[*struct{}](c, fiber.StatusOK, "Hello From API Local Gokils Hioto 💡", nil)
+		return utils.SuccessResponse[*struct{}](c, fiber.StatusOK, "Hello From API Local Gokils Hioto💡", nil)
 	})
 	route.Get("/metrics", monitor.New(monitor.Config{Title: "Hioto Metrics Page"}))
 
