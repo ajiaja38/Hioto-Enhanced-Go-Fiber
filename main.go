@@ -81,7 +81,7 @@ func main() {
 	// REST API Router Group
 	router.Router(route, db, controlDeviceService, deviceService, ruleService)
 
-	log.Infof("Starting server on http://localhost:%s/api 💡", port)
+	log.Infof("Starting API server on http://localhost:%s/api 💡", port)
 
 	go func() {
 		if err := app.Listen(":" + port); err != nil {
