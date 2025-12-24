@@ -60,6 +60,7 @@ func main() {
 	})
 
 	port := config.PORT.GetValue()
+
 	if port == "" {
 		port = "8080"
 	}
