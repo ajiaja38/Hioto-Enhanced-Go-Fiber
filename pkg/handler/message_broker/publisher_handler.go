@@ -90,5 +90,5 @@ func PublishToRoutingKey(instanceName string, message []byte, exchange, routingK
 		return
 	}
 
-	log.Infof("Published message to routingKey %s ✅", routingKey)
+	log.Infof("Published message to routing Key %s ✅", routingKey)
 }
