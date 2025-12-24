@@ -70,6 +70,7 @@ func PublishToRoutingKey(instanceName string, message []byte, exchange, routingK
 		false,
 		nil,
 	)
+
 	if err != nil {
 		log.Errorf("Failed to declare exchange: %v 💥", err)
 		return
