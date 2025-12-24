@@ -108,6 +108,7 @@ func ConsumeRmq(ctx context.Context, instanceName, queueName string, handler Mes
 
 func ConsumeMQTTTopic(ctx context.Context, instanceName, topic string, handlerFunc MessageHandler) {
 	client, err := config.GetMqttInstance(instanceName)
+
 	if err != nil {
 		log.Errorf("MQTT instance error: %v", err)
 		return

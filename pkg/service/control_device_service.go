@@ -87,11 +87,10 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlLocalDt
 
 	log.Info("Transaction committed successfully ✅")
 
-	messagebroker.PublishToRoutingKey(
-		config.RMQ_LOCAL_INSTANCE.GetValue(),
-		[]byte(controlDto.Message),
-		config.EXCHANGE_TOPIC.GetValue(),
+	messagebroker.PublishToMqtt(
+		config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
 		config.AKTUATOR_ROUTING_KEY.GetValue(),
+		controlDto.Message,
 	)
 }
 
@@ -156,11 +155,10 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 
 	log.Info("Transaction for local committed successfully ✅")
 
-	messagebroker.PublishToRoutingKey(
-		config.RMQ_LOCAL_INSTANCE.GetValue(),
-		[]byte(controlDto.Message),
-		config.EXCHANGE_TOPIC.GetValue(),
+	messagebroker.PublishToMqtt(
+		config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
 		config.AKTUATOR_ROUTING_KEY.GetValue(),
+		controlDto.Message,
 	)
 
 	bodyToCloud := dto.ResCloudDeviceDto{
@@ -246,11 +244,10 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 			continue
 		}
 
-		messagebroker.PublishToRoutingKey(
-			config.RMQ_LOCAL_INSTANCE.GetValue(),
-			[]byte(messageToAktuator),
-			config.EXCHANGE_TOPIC.GetValue(),
+		messagebroker.PublishToMqtt(
+			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
 			config.AKTUATOR_ROUTING_KEY.GetValue(),
+			messageToAktuator,
 		)
 
 		log.Infof("Sensor rule executed for aktuator %s with value %s ✅", aktuator.Name, ruleDevice.OutputValue)

@@ -93,3 +93,22 @@ func PublishToRoutingKey(instanceName string, message []byte, exchange, routingK
 
 	log.Infof("Published message to routing Key %s ✅", routingKey)
 }
+
+func PublishToMqtt(instance, topic, message string) {
+	client, err := config.GetMqttInstance(instance)
+
+	if err != nil {
+		log.Errorf("Failed to get MQTT instance: %v 💥", err)
+		return
+	}
+
+	token := client.Publish(topic, 0, false, message)
+	token.Wait()
+
+	if token.Error() != nil {
+		log.Errorf("Failed to publish message: %v 💥", token.Error())
+		return
+	}
+
+	log.Infof("Published message to topic %s ✅", topic)
+}
