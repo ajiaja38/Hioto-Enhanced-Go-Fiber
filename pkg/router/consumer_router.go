@@ -76,17 +76,17 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []cont
 		},
 		{
 			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
-			config.AKTUATOR_ROUTING_KEY.GetValue(),
+			config.AKTUATOR_TOPIC.GetValue(),
 			c.consumerHandler.TestingConsumeAktuator,
 		},
 		{
 			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
-			config.SENSOR_QUEUE.GetValue(),
+			config.SENSOR_TOPIC.GetValue(),
 			c.consumerHandler.ControlSensorHandler,
 		},
 		{
 			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
-			config.MONITORING_QUEUE.GetValue(),
+			config.MONITORING_TOPIC.GetValue(),
 			c.consumerHandler.MonitoringDataDevice,
 		},
 	} {

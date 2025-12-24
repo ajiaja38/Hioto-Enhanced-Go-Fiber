@@ -89,7 +89,7 @@ func (s *ControlDeviceService) ControlDeviceCloud(controlDto *dto.ControlLocalDt
 
 	messagebroker.PublishToMqtt(
 		config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
-		config.AKTUATOR_ROUTING_KEY.GetValue(),
+		config.AKTUATOR_TOPIC.GetValue(),
 		controlDto.Message,
 	)
 }
@@ -157,7 +157,7 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 
 	messagebroker.PublishToMqtt(
 		config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
-		config.AKTUATOR_ROUTING_KEY.GetValue(),
+		config.AKTUATOR_TOPIC.GetValue(),
 		controlDto.Message,
 	)
 
@@ -246,7 +246,7 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 
 		messagebroker.PublishToMqtt(
 			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
-			config.AKTUATOR_ROUTING_KEY.GetValue(),
+			config.AKTUATOR_TOPIC.GetValue(),
 			messageToAktuator,
 		)
 
