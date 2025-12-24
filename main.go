@@ -49,7 +49,7 @@ func main() {
 
 	// Start Consumer
 	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService)
-	consumerRouter := router.NewConsumerMessageBroker(consumerHandler, ctx)
+	consumerRouter := router.NewConsumerMessageBroker(ctx, consumerHandler)
 	consumerRouter.StartConsumer()
 
 	log.Info("Hello From Worker Hioto 💡")

@@ -161,38 +161,7 @@ func (s *ControlDeviceService) ControlDeviceLocal(controlDto *dto.ControlLocalDt
 		controlDto.Message,
 	)
 
-	bodyToCloud := dto.ResCloudDeviceDto{
-		ResponseDeviceDto: dto.ResponseDeviceDto{
-			ID:           device.ID,
-			Guid:         device.Guid,
-			Mac:          device.Mac,
-			Type:         device.Type,
-			Quantity:     device.Quantity,
-			Name:         device.Name,
-			Version:      device.Version,
-			Minor:        device.Minor,
-			Status:       device.Status,
-			StatusDevice: string(device.StatusDevice),
-			LastSeen:     device.LastSeen,
-			CreatedAt:    device.CreatedAt,
-			UpdatedAt:    device.UpdatedAt,
-		},
-		MacServer: config.MAC_ADDRESS.GetValue(),
-	}
-
-	jsonBody, err := json.Marshal(bodyToCloud)
-
-	if err != nil {
-		log.Errorf("Error marshaling JSON: %v 💥", err)
-		return fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
-	}
-
-	messagebroker.PublishToRmq(
-		config.RMQ_CLOUD_INSTANCE.GetValue(),
-		jsonBody,
-		config.UPDATE_RES_CLOUD.GetValue(),
-		config.EXCHANGE_DIRECT.GetValue(),
-	)
+	s.publishUpdateResponseToCloud(&device)
 
 	return nil
 }
@@ -251,5 +220,44 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 		)
 
 		log.Infof("Sensor rule executed for aktuator %s with value %s ✅", aktuator.Name, ruleDevice.OutputValue)
+
+		s.publishUpdateResponseToCloud(&aktuator)
 	}
+}
+
+func (s *ControlDeviceService) publishUpdateResponseToCloud(device *model.Registration) error {
+	bodyToCloud := dto.ResCloudDeviceDto{
+		ResponseDeviceDto: dto.ResponseDeviceDto{
+			ID:           device.ID,
+			Guid:         device.Guid,
+			Mac:          device.Mac,
+			Type:         device.Type,
+			Quantity:     device.Quantity,
+			Name:         device.Name,
+			Version:      device.Version,
+			Minor:        device.Minor,
+			Status:       device.Status,
+			StatusDevice: string(device.StatusDevice),
+			LastSeen:     device.LastSeen,
+			CreatedAt:    device.CreatedAt,
+			UpdatedAt:    device.UpdatedAt,
+		},
+		MacServer: config.MAC_ADDRESS.GetValue(),
+	}
+
+	jsonBody, err := json.Marshal(bodyToCloud)
+
+	if err != nil {
+		log.Errorf("Error marshaling JSON: %v 💥", err)
+		return fiber.NewError(fiber.StatusBadRequest, "Error marshaling JSON")
+	}
+
+	messagebroker.PublishToRmq(
+		config.RMQ_CLOUD_INSTANCE.GetValue(),
+		jsonBody,
+		config.UPDATE_RES_CLOUD.GetValue(),
+		config.EXCHANGE_DIRECT.GetValue(),
+	)
+
+	return nil
 }
