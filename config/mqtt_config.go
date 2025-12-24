@@ -42,7 +42,7 @@ func initializeMqtt(mqttConfig *MqttConfig) error {
 	opts.OnConnect = func(client mqtt.Client) {
 		log.Infof("🔓 MQTT %s connected", mqttConfig.InstanceName)
 
-		MqttSubscriptions.Range(func(key, value interface{}) bool {
+		MqttSubscriptions.Range(func(key, value any) bool {
 			topic := key.(string)
 			handler := value.(func([]byte))
 
@@ -51,9 +51,9 @@ func initializeMqtt(mqttConfig *MqttConfig) error {
 			})
 
 			if token.Wait() && token.Error() != nil {
-				log.Errorf("❌ Failed to resubscribe '%s': %v", topic, token.Error())
+				log.Errorf("❌ Failed to subscribe '%s': %v", topic, token.Error())
 			} else {
-				log.Infof("🔄 Re-subscribed: %s", topic)
+				log.Infof("🔄 Subscribed: %s", topic)
 			}
 
 			return true
