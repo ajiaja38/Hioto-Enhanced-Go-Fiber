@@ -29,8 +29,6 @@ func NewConsumerMessageBroker(consumerHandler *consumer.ConsumerHandler, ctx con
 }
 
 func (c *ConsumerMessageBroker) StartConsumer() {
-	go messagebroker.ConsumeRmq(c.ctx, config.RMQ_LOCAL_INSTANCE.GetValue(), config.MONITORING_QUEUE.GetValue(), c.consumerHandler.MonitoringDataDevice)
-
 	go func() {
 		for {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -85,6 +83,11 @@ func (c *ConsumerMessageBroker) startRoutingConsumer(ctx context.Context) []cont
 			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
 			config.SENSOR_QUEUE.GetValue(),
 			c.consumerHandler.ControlSensorHandler,
+		},
+		{
+			config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
+			config.MONITORING_QUEUE.GetValue(),
+			c.consumerHandler.MonitoringDataDevice,
 		},
 	} {
 		go messagebroker.ConsumeMQTTTopic(

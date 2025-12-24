@@ -85,9 +85,4 @@ func CreateRmqInstance() {
 	if err := initializeRabbitMQ(RMQ_CLOUD_URI.GetValue(), RMQ_CLOUD_INSTANCE.GetValue()); err != nil {
 		log.Fatal(err)
 	}
-
-	// Init RabbitMQ Local
-	if err := initializeRabbitMQ(RMQ_LOCAL_URI.GetValue(), RMQ_LOCAL_INSTANCE.GetValue()); err != nil {
-		log.Fatal(err)
-	}
 }
