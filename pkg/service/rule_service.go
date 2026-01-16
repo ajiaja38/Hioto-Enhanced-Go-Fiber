@@ -45,7 +45,7 @@ func generateSensorPatterns(length int) []string {
 
 func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRules []dto.ResponseRuleDto, err error) {
 	if err = s.db.Where("guid = ?", createRuleDto.InputGuid).First(&model.Registration{}).Error; err != nil {
-		log.Errorf("Sensor is not found: %v 💥", err)
+		log.Errorf("Sensor is'nt found: %v 💥", err)
 		return nil, fiber.NewError(fiber.StatusNotFound, "The Sensor is not found")
 	}
 
