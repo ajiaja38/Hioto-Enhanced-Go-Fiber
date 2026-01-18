@@ -77,7 +77,7 @@ func main() {
 	route.Get("/", func(c *fiber.Ctx) error {
 		return utils.SuccessResponse[*struct{}](c, fiber.StatusOK, "Hello From API Local Hioto 💡", nil)
 	})
-	route.Get("/metrics", monitor.New(monitor.Config{Title: "Hioto Fiber Metrics Page"}))
+	route.Get("/metrics", monitor.New(monitor.Config{Title: "Hioto Metrics Page"}))
 
 	// REST API Router Group
 	router.Router(route, db, controlDeviceService, deviceService, ruleService)
