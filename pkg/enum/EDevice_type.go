@@ -6,7 +6,7 @@ const (
 	AI                 EDeviceType = "AI"
 	SENSOR             EDeviceType = "SENSOR"
 	SENSOR_TEMPERATURE EDeviceType = "SENSOR_TEMPERATURE"
-	SENSOR_WATER_LEVEL EDeviceType = "SENSOR_WATER_LEVEL"
+	SENSOR_WATER_TANK  EDeviceType = "SENSOR_WATER_TANK"
 	SENSOR_CAMERA      EDeviceType = "SENSOR_CAMERA"
 	SENSOR_PARKING     EDeviceType = "SENSOR_PARKING"
 	AKTUATOR           EDeviceType = "AKTUATOR"
