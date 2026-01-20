@@ -7,7 +7,10 @@ import (
 )
 
 func DBConnection() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open(DB_PATH.GetValue()+"?_loc=Asia%2FJakarta"), &gorm.Config{})
+	db, err := gorm.Open(
+		sqlite.Open(DB_PATH.GetValue()+"?_loc=Asia%2FJakarta"),
+		&gorm.Config{},
+	)
 
 	if err != nil {
 		return nil, err
