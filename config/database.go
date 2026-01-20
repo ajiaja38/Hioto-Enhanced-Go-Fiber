@@ -13,7 +13,7 @@ func DBConnection() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	log.Info("Successfully connected to SQLite database 🗃️")
+	log.Info("Successfully connected to database 🗃️")
 
 	return db, nil
 }
