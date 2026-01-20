@@ -20,3 +20,15 @@ type ResponseRuleDto struct {
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }
+
+type ResponseGetRulesDto struct {
+	ID                  uint   `json:"id"`
+	GuidSensor          string `json:"guid_sensor"`
+	SensorName          string `json:"sensor_name"`
+	SensorInputValue    string `json:"sensor_input_value"`
+	GuidAktuator        string `json:"guid_aktuator"`
+	AktuatorName        string `json:"aktuator_name"`
+	AktuatorOutputValue string `json:"aktuator_output_value"`
+	CreatedAt           string `json:"created_at"`
+	UpdatedAt           string `json:"updated_at"`
+}

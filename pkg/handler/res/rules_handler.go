@@ -1,6 +1,7 @@
 package res
 
 import (
+	"fmt"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/service"
 	"go/hioto/pkg/utils"
@@ -51,6 +52,32 @@ func (h *RulesHandler) GetRulesByGuidHandler(c *fiber.Ctx) error {
 	}
 
 	return utils.SuccessResponse(c, fiber.StatusOK, "Success get rules by guid", rules)
+}
+
+func (h *RulesHandler) GetRulesPaginationHandler(c *fiber.Ctx) error {
+	var params dto.GetRulesPagination
+
+	if err := c.QueryParser(&params); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	fmt.Print(params)
+
+	if params.Page <= 0 {
+		params.Page = 1
+	}
+
+	if params.Limit <= 0 {
+		params.Limit = 5
+	}
+
+	meta, response, err := h.rulesService.GetAllRulesPagination(&params)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SuccessResponsePaginate(c, fiber.StatusOK, "success get all rules pagination", response, meta)
 }
 
 func (h *RulesHandler) DeleteRulesByGuidSensorHandler(c *fiber.Ctx) error {

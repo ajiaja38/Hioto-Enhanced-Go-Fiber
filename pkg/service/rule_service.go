@@ -8,6 +8,7 @@ import (
 	"go/hioto/pkg/enum"
 	messagebroker "go/hioto/pkg/handler/message_broker"
 	"go/hioto/pkg/model"
+	"math"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -110,6 +111,72 @@ func (s *RuleService) CreateRules(createRuleDto *dto.CreateRuleDto) (responseRul
 	log.Info("Rule was created successfully ✅")
 
 	return responseRules, nil
+}
+
+func (s *RuleService) GetAllRulesPagination(params *dto.GetRulesPagination) (*model.MetaPagination, *[]dto.ResponseGetRulesDto, error) {
+	var rules []dto.ResponseGetRulesDto = []dto.ResponseGetRulesDto{}
+	var totalData int64
+
+	offset := (params.Page - 1) * params.Limit
+	searchValue := params.Search + "%"
+
+	countQuery := `
+        SELECT COUNT(*)
+        FROM rule_devices r
+        LEFT JOIN registrations s ON r.input_guid = s.guid
+        LEFT JOIN registrations a ON r.output_guid = a.guid
+        WHERE (s.name LIKE ? OR a.name LIKE ?)
+        AND (? = '' OR s.guid = ?)
+    `
+
+	errCount := s.db.Raw(countQuery, searchValue, searchValue, params.GuidSensor, params.GuidSensor).Scan(&totalData).Error
+
+	if errCount != nil {
+		return nil, nil, errCount
+	}
+
+	rawQuery := `
+        SELECT
+            r.id,
+            r.input_guid as guid_sensor,
+            s.name as sensor_name,
+			r.input_value as sensor_input_value,
+			r.output_guid as guid_aktuator,
+			a.name as aktuator_name,
+            r.output_value as aktuator_output_value,
+            r.created_at,
+            r.updated_at
+        FROM rule_devices r
+        LEFT JOIN registrations s ON r.input_guid = s.guid
+        LEFT JOIN registrations a ON r.output_guid  = a.guid
+        WHERE (s.name LIKE ? OR a.name LIKE ?)
+        AND (? = '' OR s.guid = ?)
+        LIMIT ? OFFSET ?
+    `
+	err := s.db.Raw(
+		rawQuery,
+		searchValue,
+		searchValue,
+		params.GuidSensor,
+		params.GuidSensor,
+		params.Limit,
+		offset,
+	).Scan(&rules).Error
+
+	if err != nil {
+		return nil, nil, fiber.NewError(fiber.StatusBadRequest, "Badrequest, failed get data")
+	}
+
+	totalPage := int(math.Ceil(float64(totalData) / float64(params.Limit)))
+
+	meta := &model.MetaPagination{
+		Page:      params.Page,
+		Limit:     params.Limit,
+		TotalPage: totalPage,
+		TotalData: int(totalData),
+	}
+
+	return meta, &rules, nil
 }
 
 func (s *RuleService) GetRulesByGuid(guid string) ([]dto.ResponseRuleDto, error) {

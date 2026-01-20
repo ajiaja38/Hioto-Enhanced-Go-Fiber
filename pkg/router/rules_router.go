@@ -12,6 +12,7 @@ func RulesRouter(router fiber.Router, db *gorm.DB, rulesService *service.RuleSer
 	rulesHandler := res.NewRulesHandler(rulesService)
 
 	router.Post("/rule", rulesHandler.CreateRulesHandler)
+	router.Get("/rules", rulesHandler.GetRulesPaginationHandler)
 	router.Get("/rule/:guidDevice", rulesHandler.GetRulesByGuidHandler)
 	router.Delete("/rule/:guidSensor", rulesHandler.DeleteRulesByGuidSensorHandler)
 }
