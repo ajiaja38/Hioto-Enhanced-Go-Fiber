@@ -1,7 +1,6 @@
 package res
 
 import (
-	"fmt"
 	"go/hioto/pkg/dto"
 	"go/hioto/pkg/service"
 	"go/hioto/pkg/utils"
@@ -60,8 +59,6 @@ func (h *RulesHandler) GetRulesPaginationHandler(c *fiber.Ctx) error {
 	if err := c.QueryParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-
-	fmt.Print(params)
 
 	if params.Page <= 0 {
 		params.Page = 1
