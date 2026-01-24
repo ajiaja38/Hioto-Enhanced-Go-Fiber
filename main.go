@@ -38,11 +38,11 @@ func main() {
 	config.CreateMqttInstance()
 	defer config.CloseAllMqttInstances()
 
-	// Start Worker
+	// Start Workers
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// define instance service
+	// define instance services
 	controlDeviceService := service.NewControlDeviceService(db)
 	deviceService := service.NewDeviceService(db)
 	ruleService := service.NewRuleService(db)
