@@ -13,8 +13,12 @@ func Router(
 	controlDeviceService *service.ControlDeviceService,
 	deviceService *service.DeviceService,
 	rulesService *service.RuleService,
+	floorService *service.FloorService,
+	roomService *service.RoomService,
 ) {
 	ControlDeviceRouter(router, db, controlDeviceService)
 	DeviceRouter(router, db, deviceService)
 	RulesRouter(router, db, rulesService)
+	FloorRouter(router, db, floorService)
+	RoomRouter(router, db, roomService)
 }

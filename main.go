@@ -46,6 +46,8 @@ func main() {
 	controlDeviceService := service.NewControlDeviceService(db)
 	deviceService := service.NewDeviceService(db)
 	ruleService := service.NewRuleService(db)
+	floorService := service.NewFloorService(db)
+	roomService := service.NewRoomService(db)
 
 	// Start Consumer
 	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService)
@@ -80,7 +82,7 @@ func main() {
 	route.Get("/metrics", monitor.New(monitor.Config{Title: "Hioto Metrics Page"}))
 
 	// REST API Router Group
-	router.Router(route, db, controlDeviceService, deviceService, ruleService)
+	router.Router(route, db, controlDeviceService, deviceService, ruleService, floorService, roomService)
 
 	log.Infof("API server is running on http://localhost:%s/api 💡", port)
 

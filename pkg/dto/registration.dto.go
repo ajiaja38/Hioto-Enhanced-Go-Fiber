@@ -13,9 +13,10 @@ type RegistrationDto struct {
 	Name     string           `json:"name" validate:"required"`
 	Version  string           `json:"version" validate:"required"`
 	Minor    string           `json:"minor" validate:"required"`
+	RoomID   *uint            `json:"room_id"`
 }
 
-type ResponseDeviceDto struct {
+type ResponseDeviceListDto struct {
 	ID           uint             `json:"id"`
 	Guid         string           `json:"guid"`
 	Mac          string           `json:"mac"`
@@ -29,10 +30,31 @@ type ResponseDeviceDto struct {
 	LastSeen     time.Time        `json:"last_seen"`
 	CreatedAt    time.Time        `json:"created_at"`
 	UpdatedAt    time.Time        `json:"updated_at"`
+	RoomName     *string          `json:"room"`
+}
+
+type ResponseDeviceDetailDto struct {
+	ID           uint             `json:"id"`
+	Guid         string           `json:"guid"`
+	Mac          string           `json:"mac"`
+	Type         enum.EDeviceType `json:"type"`
+	Quantity     int              `json:"quantity"`
+	Name         string           `json:"name"`
+	Version      string           `json:"version"`
+	Minor        string           `json:"minor"`
+	Status       string           `json:"status"`
+	StatusDevice string           `json:"status_device"`
+	LastSeen     time.Time        `json:"last_seen"`
+	CreatedAt    time.Time        `json:"created_at"`
+	UpdatedAt    time.Time        `json:"updated_at"`
+	RoomID       *uint            `json:"id_room"`
+	RoomName     *string          `json:"room"`
+	FloorID      *uint            `json:"id_floor"`
+	FloorName    *string          `json:"floor"`
 }
 
 type ResCloudDeviceDto struct {
-	ResponseDeviceDto
+	ResponseDeviceDetailDto
 	MacServer string `json:"mac_server"`
 }
 
@@ -44,6 +66,7 @@ type ReqUpdateDeviceDto struct {
 	Name     string           `json:"name" validate:"required"`
 	Version  string           `json:"version" validate:"required"`
 	Minor    string           `json:"minor" validate:"required"`
+	RoomID   *uint            `json:"room_id"`
 }
 
 type ReqDeleteDeviceFromCloudDto struct {

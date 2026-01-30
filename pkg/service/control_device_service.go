@@ -227,7 +227,7 @@ func (s *ControlDeviceService) ControlSensor(guid, value string) {
 
 func (s *ControlDeviceService) publishUpdateResponseToCloud(device *model.Registration) error {
 	bodyToCloud := dto.ResCloudDeviceDto{
-		ResponseDeviceDto: dto.ResponseDeviceDto{
+		ResponseDeviceDetailDto: dto.ResponseDeviceDetailDto{
 			ID:           device.ID,
 			Guid:         device.Guid,
 			Mac:          device.Mac,
@@ -241,6 +241,7 @@ func (s *ControlDeviceService) publishUpdateResponseToCloud(device *model.Regist
 			LastSeen:     device.LastSeen,
 			CreatedAt:    device.CreatedAt,
 			UpdatedAt:    device.UpdatedAt,
+			RoomID:       device.RoomID,
 		},
 		MacServer: config.MAC_ADDRESS.GetValue(),
 	}

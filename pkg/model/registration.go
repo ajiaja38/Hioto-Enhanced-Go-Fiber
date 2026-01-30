@@ -24,5 +24,7 @@ type Registration struct {
 	LogsInput         []Log               `gorm:"foreignKey:InputGuid;references:Guid" json:"logs_input"`
 	LogsOutput        []Log               `gorm:"foreignKey:OutputGuid;references:Guid" json:"logs_output"`
 	LogsInputAktuator []LogAktuator       `gorm:"foreignKey:InputGuid;references:Guid" json:"logs_aktuator_input"`
+	RoomID            *uint               `gorm:"default:null" json:"room_id"`
+	Room              *Room               `gorm:"foreignKey:RoomID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"room"`
 	MonitoringHistory []MonitoringHistory `gorm:"foreignKey:DeviceGuid;references:Guid" json:"monitoring_history"`
 }

@@ -7,6 +7,8 @@ import (
 )
 
 func AutoMigrateDb(db *gorm.DB) {
+	db.AutoMigrate(&model.Floor{})
+	db.AutoMigrate(&model.Room{})
 	db.AutoMigrate(&model.Registration{})
 	db.AutoMigrate(&model.RuleDevice{})
 	db.AutoMigrate(&model.Log{})
