@@ -58,7 +58,6 @@ func (s *DeviceService) RegisterDeviceLocal(registrationDto *dto.RegistrationDto
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error creating device")
 	}
 
-	// Fetch full device details (including Room)
 	deviceResponse, err := s.GetDeviceByGuid(registration.Guid)
 	if err != nil {
 		log.Errorf("Error fetching created device: %v 💥", err)

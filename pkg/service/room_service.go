@@ -48,7 +48,7 @@ func (s *RoomService) GetAllRooms() ([]dto.ResponseRoomDto, error) {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Error getting all rooms")
 	}
 
-	var result []dto.ResponseRoomDto
+	var result []dto.ResponseRoomDto = []dto.ResponseRoomDto{}
 
 	for _, room := range rooms {
 		result = append(result, dto.ResponseRoomDto{
