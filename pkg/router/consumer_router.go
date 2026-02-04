@@ -81,6 +81,11 @@ func (c *ConsumerMessageBroker) StartConsumer() {
 		},
 		{
 			InstanceName: config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
+			Topic:        config.SENSOR_GAS_DETECTOR_TOPIC.GetValue(),
+			HandlerFunc:  c.consumerHandler.ControlGasDetectorHandler,
+		},
+		{
+			InstanceName: config.MQTT_LOCAL_INSTANCE_NAME.GetValue(),
 			Topic:        config.MONITORING_TOPIC.GetValue(),
 			HandlerFunc:  c.consumerHandler.MonitoringDataDevice,
 		},

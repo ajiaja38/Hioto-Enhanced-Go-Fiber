@@ -7,5 +7,10 @@ type ControlLocalDto struct {
 	Message string           `json:"message" validate:"required"`
 }
 
-type ControGasDetector struct {
+type ControlGasDetector struct {
+	Guid        string `json:"guid" validate:"required"`
+	DeviceName  string `json:"deviceName" validate:"required"`
+	Value       int    `json:"value" validate:"required"`
+	Condition   int    `json:"condition"`
+	Description string `json:"description" validate:"required"`
 }

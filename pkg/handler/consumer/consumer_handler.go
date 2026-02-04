@@ -98,6 +98,22 @@ func (h *ConsumerHandler) ControlHandler(message []byte) {
 	h.controlDeviceService.ControlDeviceCloud(&controlDeviceDto)
 }
 
+func (h *ConsumerHandler) ControlGasDetectorHandler(message []byte) {
+	var controlGassDto dto.ControlGasDetector
+
+	if err := json.Unmarshal(message, &controlGassDto); err != nil {
+		log.Errorf("Failed to unmarshal control message: %v", err)
+		return
+	}
+
+	if err := validate.Struct(controlGassDto); err != nil {
+		log.Errorf("Validation error: %v", err)
+		return
+	}
+
+	log.Infof("Data %s", controlGassDto.Condition)
+}
+
 func (h *ConsumerHandler) ControlSensorHandler(message []byte) {
 	messageString := string(message)
 
