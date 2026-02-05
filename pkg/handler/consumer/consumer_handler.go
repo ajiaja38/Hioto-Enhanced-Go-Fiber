@@ -127,7 +127,7 @@ func (h *ConsumerHandler) DeleteDeviceFromCloudHandler(message []byte) {
 	var deleteDeviceDtoFromCloud dto.ReqDeleteDeviceFromCloudDto
 
 	if err := json.Unmarshal(message, &deleteDeviceDtoFromCloud); err != nil {
-		log.Errorf("Failed to unmarshal delete device message: %v", err)
+		log.Errorf("Failed to unmarshal delete device messages: %v", err)
 		return
 	}
 
