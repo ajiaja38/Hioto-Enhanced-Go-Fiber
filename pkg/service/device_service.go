@@ -83,7 +83,7 @@ func (s *DeviceService) RegisterDeviceLocal(registrationDto *dto.RegistrationDto
 		config.EXCHANGE_DIRECT.GetValue(),
 	)
 
-	log.Infof("Device successfully registered from local: %s ✅", registration.Name)
+	log.Infof("Device successfully registered from locals: %s ✅", registration.Name)
 
 	return deviceResponse, nil
 }
