@@ -30,7 +30,7 @@ func (h *FloorHandler) CreateFloor(c *fiber.Ctx) error {
 		return err
 	}
 
-	return utils.SuccessResponse(c, fiber.StatusCreated, "Success create floor", response)
+	return utils.SuccessResponse(c, fiber.StatusCreated, "Success create floors", response)
 }
 
 func (h *FloorHandler) GetAllFloors(c *fiber.Ctx) error {
