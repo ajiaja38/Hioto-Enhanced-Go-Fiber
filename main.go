@@ -5,6 +5,7 @@ import (
 	"go/hioto/config"
 	"go/hioto/pkg/handler/consumer"
 	"go/hioto/pkg/handler/err"
+	"go/hioto/pkg/handler/res" 
 	"go/hioto/pkg/router"
 	"go/hioto/pkg/service"
 	"go/hioto/pkg/utils"
@@ -38,7 +39,6 @@ func main() {
 	config.CreateMqttInstance()
 	defer config.CloseAllMqttInstances()
 
-	// Start Workers
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -48,9 +48,10 @@ func main() {
 	ruleService := service.NewRuleService(db)
 	floorService := service.NewFloorService(db)
 	roomService := service.NewRoomService(db)
+	masterRelayService := service.NewMasterRelayService(db)
 
-	// Start Consumer
-	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService)
+	// Start Consumer (MQTT)
+	consumerHandler := consumer.NewConsumerHandler(ruleService, deviceService, controlDeviceService, masterRelayService)
 	consumerRouter := router.NewConsumerMessageBroker(ctx, consumerHandler)
 	consumerRouter.StartConsumer()
 
@@ -81,8 +82,11 @@ func main() {
 	})
 	route.Get("/metrics", monitor.New(monitor.Config{Title: "Hioto Metrics Pages"}))
 
-	// REST API Router Group
+	// REST API Router Group (Existing)
 	router.Router(route, db, controlDeviceService, deviceService, ruleService, floorService, roomService)
+
+	masterRelayHandler := res.NewMasterRelayHandler(masterRelayService)
+	route.Get("/master-relay/:guid/stats", masterRelayHandler.GetStats)
 
 	log.Infof("API server is running on http://localhost:%s/api 💡", port)
 

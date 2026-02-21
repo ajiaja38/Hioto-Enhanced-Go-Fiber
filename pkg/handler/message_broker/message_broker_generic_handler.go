@@ -120,7 +120,7 @@ func ConsumeMQTTTopic(
 	config.MqttSubscriptions.Store(topic, handlerFunc)
 
 	client.AddRoute(topic, func(client mqtt.Client, msg mqtt.Message) {
-		log.Infof("📥 MQTT [%s]: %s", msg.Topic(), string(msg.Payload()))
+		// log.Infof("📥 MQTT [%s]: %s", msg.Topic(), string(msg.Payload()))
 		handlerFunc(msg.Payload())
 	})
 

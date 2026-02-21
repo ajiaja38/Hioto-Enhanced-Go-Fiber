@@ -16,14 +16,16 @@ type ConsumerHandler struct {
 	ruleService          *service.RuleService
 	deviceService        *service.DeviceService
 	controlDeviceService *service.ControlDeviceService
+	masterRelayService   *service.MasterRelayService
 	validator            *validator.Validate
 }
 
-func NewConsumerHandler(ruleService *service.RuleService, deviceService *service.DeviceService, controlDeviceService *service.ControlDeviceService) *ConsumerHandler {
+func NewConsumerHandler(ruleService *service.RuleService, deviceService *service.DeviceService, controlDeviceService *service.ControlDeviceService, masterRelayService *service.MasterRelayService) *ConsumerHandler {
 	return &ConsumerHandler{
 		ruleService:          ruleService,
 		deviceService:        deviceService,
 		controlDeviceService: controlDeviceService,
+		masterRelayService:   masterRelayService,
 		validator:            validator.New(),
 	}
 }
@@ -146,4 +148,22 @@ func (h *ConsumerHandler) TestingConsumeAktuator(message []byte) {
 	messageString := string(message)
 
 	log.Info(messageString)
+}
+
+func (h *ConsumerHandler) MasterRelayLogHandler(topic string, message []byte) {
+	var payload dto.MasterRelayMQTTPayload
+	
+	if err := json.Unmarshal(message, &payload); err != nil {
+		log.Errorf("Gagal unmarshal JSON Master Relay: %v", err)
+		return
+	}
+
+	if payload.Guid == "" {
+		log.Warn("Pesan Master Relay ditolak: GUID kosong")
+		return
+	}
+
+	if err := h.masterRelayService.SaveLog(payload); err != nil {
+		log.Errorf("Gagal simpan log Master Relay ke DB: %v", err)
+	} 
 }

@@ -14,4 +14,5 @@ func AutoMigrateDb(db *gorm.DB) {
 	db.AutoMigrate(&model.Log{})
 	db.AutoMigrate(&model.LogAktuator{})
 	db.AutoMigrate(&model.MonitoringHistory{})
+	db.AutoMigrate(&model.LogMasterRelay{})
 }

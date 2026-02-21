@@ -89,6 +89,13 @@ func (c *ConsumerMessageBroker) StartConsumer() {
 			Topic:        config.MONITORING_TOPIC.GetValue(),
 			HandlerFunc:  c.consumerHandler.MonitoringDataDevice,
 		},
+		{
+			InstanceName: config.MQTT_LOCAL_INSTANCE_NAME.GetValue(), 
+			Topic:        "Log/d66d2421-0606-44e4-88a4-bdb706093bb5",
+			HandlerFunc: func(message []byte) {
+				c.consumerHandler.MasterRelayLogHandler("Log/MasterRelay", message) 
+			},
+		},
 	}
 
 	for _, route := range routes {
