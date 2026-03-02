@@ -24,7 +24,7 @@ func (s *MasterRelayService) SaveLog(payload dto.MasterRelayMQTTPayload) error {
 	now := time.Now()
 	lastTime, exists := lastSaveMap[payload.Guid]
 
-	if !exists || now.Sub(lastTime).Seconds() >= 43200 {
+	if !exists || now.Sub(lastTime).Seconds() >= 3600 {
 		logData := model.LogMasterRelay{
 			Guid:       payload.Guid,
 			Mac:        payload.Mac,

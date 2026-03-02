@@ -17,7 +17,7 @@ func NewMasterRelayHandler(s *service.MasterRelayService) *MasterRelayHandler {
 
 func (h *MasterRelayHandler) GetStats(c *fiber.Ctx) error {
 	guid := c.Params("guid")
-	period := c.Query("period", "daily") // Opsi: daily, weekly, monthly
+	period := c.Query("period", "daily")
 
 	data, err := h.service.GetStatistics(guid, period)
 	if err != nil {
